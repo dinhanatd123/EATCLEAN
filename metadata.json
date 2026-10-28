@@ -1,0 +1,8 @@
+{
+  "name": "Cẩm Nang Eat Clean Tuần 1 - 42 Suất Ăn 885K",
+  "description": "Ứng dụng web hướng dẫn thực đơn Eat Clean Tuần 1 cho 2 người (42 suất ăn) với ngân sách 885.000đ, ma trận thực đơn 7 ngày, giỏ đi chợ tương tác, sơ chế 90 phút và 11 công thức chuẩn USDA FSIS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
