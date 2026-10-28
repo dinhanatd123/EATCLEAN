@@ -63,7 +63,7 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 space-y-20">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-3.5 sm:px-6 lg:px-8 py-7 sm:py-10 space-y-14 sm:space-y-20">
         {/* Phân Khu 2: Ma Trận Thực Đơn 7 Ngày */}
         <MealMatrix
           portion={portion}
@@ -107,7 +107,7 @@ export default function App() {
       )}
 
       {/* Footer */}
-      <footer className="bg-[#143225] text-emerald-100/80 py-10 px-4 sm:px-6 lg:px-8 border-t border-emerald-900 mt-16">
+      <footer className="bg-[#143225] text-emerald-100/80 pt-10 pb-24 sm:py-10 px-4 sm:px-6 lg:px-8 border-t border-emerald-900 mt-12 sm:mt-16">
         <div className="max-w-7xl mx-auto space-y-4 text-center sm:text-left sm:flex sm:items-center sm:justify-between text-xs">
           <div className="space-y-1">
             <p className="font-bold text-white text-sm">

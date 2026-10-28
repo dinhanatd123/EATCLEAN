@@ -101,11 +101,11 @@ export const PrepTimeline: React.FC = () => {
         {/* 90-Min Timer Widget */}
         <motion.div
           whileHover={{ y: -2 }}
-          className="bg-emerald-950 text-white rounded-2xl p-4 shadow-lg border border-emerald-700/60 flex items-center gap-4 shrink-0"
+          className="bg-emerald-950 text-white rounded-2xl p-4 shadow-lg border border-emerald-700/60 flex items-center justify-between sm:justify-start gap-4 shrink-0 w-full md:w-auto"
         >
           <div className="space-y-0.5">
             <div className="text-[11px] text-emerald-300 font-semibold flex items-center gap-1">
-              <Bell className="w-3 h-3 text-amber-400" />
+              <Bell className="w-3 h-3 text-amber-400 shrink-0" />
               <span>Đồng hồ đếm ngược 90 phút</span>
             </div>
             <div className="text-2xl sm:text-3xl font-mono font-bold text-amber-300 tracking-wider tabular-nums">
@@ -113,11 +113,11 @@ export const PrepTimeline: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 border-l border-emerald-800 pl-3">
+          <div className="flex items-center gap-2 border-l border-emerald-800 pl-3.5">
             <button
               type="button"
               onClick={() => setIsTimerRunning(!isTimerRunning)}
-              className="p-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold transition-all shadow active:scale-95 cursor-pointer"
+              className="p-3 sm:p-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold transition-all shadow active:scale-95 cursor-pointer"
               aria-label={isTimerRunning ? 'Tạm dừng timer' : 'Bắt đầu timer'}
             >
               {isTimerRunning ? <Pause className="w-4 h-4 fill-stone-950" /> : <Play className="w-4 h-4 fill-stone-950" />}
@@ -125,7 +125,7 @@ export const PrepTimeline: React.FC = () => {
             <button
               type="button"
               onClick={handleResetTimer}
-              className="p-2.5 rounded-xl bg-emerald-900 hover:bg-emerald-800 text-emerald-200 transition-all active:scale-95 cursor-pointer"
+              className="p-3 sm:p-2.5 rounded-xl bg-emerald-900 hover:bg-emerald-800 text-emerald-200 transition-all active:scale-95 cursor-pointer"
               aria-label="Đặt lại timer"
             >
               <RotateCcw className="w-4 h-4" />

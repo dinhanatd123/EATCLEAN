@@ -213,14 +213,14 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
         {/* Left Column (7 cols): Interactive Checklist */}
         <div className="lg:col-span-7 space-y-4">
           {/* Filters Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-2 p-2 bg-stone-100 rounded-xl border border-stone-200">
-            <div className="flex flex-wrap gap-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-2.5 bg-stone-100 rounded-xl border border-stone-200">
+            <div className="flex flex-wrap gap-1.5">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   type="button"
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     selectedCategory === cat
                       ? 'bg-[#1B4332] text-white shadow-sm'
                       : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200'
@@ -231,54 +231,57 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
               ))}
             </div>
 
-            <div className="flex items-center gap-1 border-t sm:border-t-0 sm:border-l border-stone-300 pl-2 pt-1 sm:pt-0">
-              <span className="text-[11px] text-stone-500 font-medium">Chuyến:</span>
-              <button
-                type="button"
-                onClick={() => setSelectedPhase('all')}
-                className={`px-2 py-1 rounded text-[11px] font-medium whitespace-nowrap shrink-0 cursor-pointer ${
-                  selectedPhase === 'all' ? 'bg-stone-800 text-white' : 'text-stone-600 hover:bg-stone-200'
-                }`}
-              >
-                Cả 2
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedPhase('Chủ Nhật')}
-                className={`px-2 py-1 rounded text-[11px] font-medium whitespace-nowrap shrink-0 cursor-pointer ${
-                  selectedPhase === 'Chủ Nhật' ? 'bg-stone-800 text-white' : 'text-stone-600 hover:bg-stone-200'
-                }`}
-              >
-                Chủ Nhật
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedPhase('Giữa tuần')}
-                className={`px-2 py-1 rounded text-[11px] font-medium whitespace-nowrap shrink-0 cursor-pointer ${
-                  selectedPhase === 'Giữa tuần' ? 'bg-stone-800 text-white' : 'text-stone-600 hover:bg-stone-200'
-                }`}
-              >
-                Giữa tuần
-              </button>
+            <div className="flex items-center justify-between sm:justify-end gap-1.5 border-t sm:border-t-0 sm:border-l border-stone-300 sm:pl-2.5 pt-2 sm:pt-0">
+              <span className="text-xs sm:text-[11px] text-stone-500 font-medium">Chuyến đi chợ:</span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setSelectedPhase('all')}
+                  className={`px-2.5 py-1 rounded-lg text-xs sm:text-[11px] font-medium cursor-pointer ${
+                    selectedPhase === 'all' ? 'bg-stone-800 text-white' : 'text-stone-600 hover:bg-stone-200'
+                  }`}
+                >
+                  Cả 2
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedPhase('Chủ Nhật')}
+                  className={`px-2.5 py-1 rounded-lg text-xs sm:text-[11px] font-medium cursor-pointer ${
+                    selectedPhase === 'Chủ Nhật' ? 'bg-stone-800 text-white' : 'text-stone-600 hover:bg-stone-200'
+                  }`}
+                >
+                  Chủ Nhật
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedPhase('Giữa tuần')}
+                  className={`px-2.5 py-1 rounded-lg text-xs sm:text-[11px] font-medium cursor-pointer ${
+                    selectedPhase === 'Giữa tuần' ? 'bg-stone-800 text-white' : 'text-stone-600 hover:bg-stone-200'
+                  }`}
+                >
+                  Giữa tuần
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Table Items */}
+          {/* Table Items - Responsive for iPhone & Desktop */}
           <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
-            <div className="overflow-x-auto">
+            <div className="w-full">
               <table className="w-full text-left text-sm">
                 <thead className="bg-[#FAF8F5] text-stone-700 text-xs font-semibold border-b border-stone-200">
                   <tr>
-                    <th scope="col" className="p-3.5 w-12 text-center">Mua</th>
-                    <th scope="col" className="p-3.5">Nguyên liệu & Phân chia</th>
-                    <th scope="col" className="p-3.5 text-right">Lượng mua</th>
-                    <th scope="col" className="p-3.5 text-right">Thành tiền</th>
+                    <th scope="col" className="p-2.5 sm:p-3.5 w-10 sm:w-12 text-center">Mua</th>
+                    <th scope="col" className="p-2.5 sm:p-3.5">Nguyên liệu & Phân chia</th>
+                    <th scope="col" className="hidden sm:table-cell p-3.5 text-right">Lượng mua</th>
+                    <th scope="col" className="p-2.5 sm:p-3.5 text-right">Định lượng / Giá</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
                   {filteredItems.map((item) => {
                     const isChecked = !!checkedMap[item.id];
                     const itemTotal = item.baseTotalPrice * factor;
+                    const qtyDisplay = factor === 1 ? item.baseAmount : `${(item.baseQty * factor).toFixed(1)} ${item.unit}`;
 
                     return (
                       <tr
@@ -290,7 +293,7 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
                             : 'hover:bg-stone-50 text-stone-800'
                         }`}
                       >
-                        <td className="p-3.5 text-center">
+                        <td className="p-2.5 sm:p-3.5 text-center align-top sm:align-middle pt-3.5 sm:pt-3.5">
                           <button
                             type="button"
                             aria-label={`Đánh dấu ${item.name}`}
@@ -307,35 +310,40 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
                             )}
                           </button>
                         </td>
-                        <td className="p-3.5">
-                          <div className="flex flex-wrap items-center gap-1.5">
+                        <td className="p-2.5 sm:p-3.5">
+                          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
                             <span
-                              className={`font-semibold ${
+                              className={`font-semibold text-xs sm:text-sm ${
                                 isChecked ? 'line-through text-stone-400' : 'text-stone-900'
                               }`}
                             >
                               {item.name}
                             </span>
                             <span className="text-xs text-stone-400">·</span>
-                            <span className="text-xs text-stone-500">{item.category}</span>
+                            <span className="text-[11px] sm:text-xs text-stone-500">{item.category}</span>
                             <span className="text-xs text-stone-400">·</span>
-                            <span className="text-xs text-amber-700 font-medium">{item.shopPhase}</span>
+                            <span className="text-[11px] sm:text-xs text-amber-700 font-medium">{item.shopPhase}</span>
                           </div>
                           <div
-                            className={`text-xs mt-1 leading-snug ${
+                            className={`text-[11px] sm:text-xs mt-1 leading-snug ${
                               isChecked ? 'text-stone-400 line-through' : 'text-stone-500'
                             }`}
                           >
                             {item.distribution}
                           </div>
                         </td>
-                        <td className="p-3.5 text-right font-medium text-stone-700 whitespace-nowrap tabular-nums">
-                          {factor === 1 ? item.baseAmount : `${(item.baseQty * factor).toFixed(1)} ${item.unit}`}
+                        <td className="hidden sm:table-cell p-3.5 text-right font-medium text-stone-700 whitespace-nowrap tabular-nums">
+                          {qtyDisplay}
                         </td>
-                        <td className="p-3.5 text-right font-bold text-stone-900 whitespace-nowrap tabular-nums">
-                          <span className={isChecked ? 'line-through text-stone-400' : 'text-emerald-900'}>
-                            {formatVND(itemTotal)}
-                          </span>
+                        <td className="p-2.5 sm:p-3.5 text-right align-top sm:align-middle whitespace-nowrap tabular-nums">
+                          <div className="font-bold text-xs sm:text-sm text-stone-900">
+                            <span className={isChecked ? 'line-through text-stone-400' : 'text-emerald-900'}>
+                              {formatVND(itemTotal)}
+                            </span>
+                          </div>
+                          <div className="sm:hidden text-[11px] font-medium text-stone-500 mt-0.5">
+                            {qtyDisplay}
+                          </div>
                         </td>
                       </tr>
                     );

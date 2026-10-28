@@ -111,54 +111,54 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
         </div>
       </div>
 
-      {/* 4 Category Tabs */}
-      <div className="flex flex-wrap gap-2 p-1.5 bg-stone-100 rounded-2xl border border-stone-200">
+      {/* 4 Category Tabs - 2x2 grid on iPhone, flex on desktop */}
+      <div className="grid grid-cols-2 lg:flex lg:flex-wrap gap-2 p-1.5 bg-stone-100 rounded-2xl border border-stone-200">
         <button
           type="button"
           onClick={() => setActiveTab('breakfast')}
-          className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+          className={`px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-center cursor-pointer leading-snug ${
             activeTab === 'breakfast'
               ? 'bg-[#1B4332] text-white shadow-md'
               : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/80'
           }`}
         >
-          Bữa Sáng Nhanh 5–25 Phút (3 món)
+          Bữa Sáng 5–25p (3 món)
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('chicken')}
-          className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+          className={`px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-center cursor-pointer leading-snug ${
             activeTab === 'chicken'
               ? 'bg-[#1B4332] text-white shadow-md'
               : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/80'
           }`}
         >
-          Nhóm Ức Gà Đạt Tâm 74°C (3 món)
+          Ức Gà Tâm 74°C (3 món)
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('steamed')}
-          className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+          className={`px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-center cursor-pointer leading-snug ${
             activeTab === 'steamed'
               ? 'bg-[#1B4332] text-white shadow-md'
               : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/80'
           }`}
         >
-          Nhóm Món Hấp Thanh Đạm (2 món)
+          Món Hấp Thanh Đạm (2 món)
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('tofu_egg')}
-          className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+          className={`px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-center cursor-pointer leading-snug ${
             activeTab === 'tofu_egg'
               ? 'bg-[#1B4332] text-white shadow-md'
               : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/80'
           }`}
         >
-          Nhóm Đậu Hũ – Trứng (3 món)
+          Đậu Hũ – Trứng (3 món)
         </button>
       </div>
 

@@ -217,33 +217,36 @@ export const FoodSafetyGuide: React.FC<FoodSafetyGuideProps> = ({ portion }) => 
           </div>
 
           {/* Quick Add Buttons */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <motion.button
               type="button"
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => addOil(5)}
-              className="flex-1 py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-semibold whitespace-nowrap shrink-0 cursor-pointer"
+              className="py-2.5 px-2 sm:px-3 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-[11px] sm:text-xs font-semibold text-center leading-tight cursor-pointer flex flex-col items-center justify-center"
             >
-              +5 ml (1 thìa cà phê)
+              <span className="font-bold">+5 ml</span>
+              <span className="text-[10px] opacity-80">1 thìa cà phê</span>
             </motion.button>
             <motion.button
               type="button"
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => addOil(10)}
-              className="flex-1 py-2 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-950 text-xs font-bold whitespace-nowrap shrink-0 cursor-pointer"
+              className="py-2.5 px-2 sm:px-3 rounded-xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-950 text-[11px] sm:text-xs font-bold text-center leading-tight cursor-pointer flex flex-col items-center justify-center"
             >
-              +10 ml (Mẻ áp chảo nhẹ)
+              <span>+10 ml</span>
+              <span className="text-[10px] font-medium opacity-80">Mẻ áp chảo</span>
             </motion.button>
             <motion.button
               type="button"
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => addOil(15)}
-              className="flex-1 py-2 px-3 rounded-xl bg-amber-200 hover:bg-amber-300 border border-amber-400 text-amber-950 text-xs font-bold whitespace-nowrap shrink-0 cursor-pointer"
+              className="py-2.5 px-2 sm:px-3 rounded-xl bg-amber-200 hover:bg-amber-300 border border-amber-400 text-amber-950 text-[11px] sm:text-xs font-bold text-center leading-tight cursor-pointer flex flex-col items-center justify-center"
             >
-              +15 ml (Mẻ nướng sả 4 suất)
+              <span>+15 ml</span>
+              <span className="text-[10px] font-medium opacity-80">Mẻ nướng sả</span>
             </motion.button>
           </div>
         </motion.div>

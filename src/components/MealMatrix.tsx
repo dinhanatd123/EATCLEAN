@@ -45,25 +45,25 @@ export const MealMatrix: React.FC<MealMatrixProps> = ({
           </p>
         </div>
 
-        {/* Day Filter Segmented Control */}
-        <div className="flex flex-wrap gap-1.5 p-1 bg-stone-100 rounded-xl border border-stone-200 shrink-0">
+        {/* Day Filter Segmented Control - 4 cols on iPhone, flex on tablet/desktop */}
+        <div className="grid grid-cols-4 sm:flex sm:flex-wrap gap-1.5 p-1.5 bg-stone-100 rounded-xl border border-stone-200 shrink-0 w-full md:w-auto">
           <button
             type="button"
             onClick={() => setSelectedDay('all')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+            className={`col-span-1 px-2.5 py-2 sm:py-1.5 rounded-lg text-xs font-semibold transition-all text-center cursor-pointer ${
               selectedDay === 'all'
                 ? 'bg-[#1B4332] text-white shadow'
                 : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/70'
             }`}
           >
-            Toàn bộ 7 ngày
+            Cả tuần
           </button>
           {MEAL_PLAN_7_DAYS.map((day) => (
             <button
               key={day.shortName}
               type="button"
               onClick={() => setSelectedDay(day.shortName)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+              className={`col-span-1 px-2.5 py-2 sm:py-1.5 rounded-lg text-xs font-semibold transition-all text-center cursor-pointer ${
                 selectedDay === day.shortName
                   ? 'bg-[#1B4332] text-white shadow'
                   : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/70'

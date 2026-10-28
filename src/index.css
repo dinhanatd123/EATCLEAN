@@ -4,6 +4,14 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 2rem;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    overflow-x: hidden;
+    width: 100%;
   }
 
   @media (prefers-reduced-motion: reduce) {

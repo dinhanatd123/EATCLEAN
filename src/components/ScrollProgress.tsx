@@ -69,14 +69,14 @@ export const ScrollProgress: React.FC<ScrollProgressProps> = ({
       <AnimatePresence>
         {showFloatingNav && (
           <motion.div
-            initial={{ opacity: 0, y: 40, scale: 0.92 }}
+            initial={{ opacity: 0, y: 40, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 40, scale: 0.92 }}
+            exit={{ opacity: 0, y: 40, scale: 0.95 }}
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-5 right-5 z-40 flex items-center gap-2"
+            className="fixed bottom-3 sm:bottom-5 inset-x-3 sm:inset-x-auto sm:right-5 z-40 flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 pointer-events-none"
           >
-            {/* Compact Floating Section Switcher (Desktop/Tablet) */}
-            <div className="hidden md:flex items-center gap-1 p-1.5 rounded-2xl bg-[#143225]/95 text-white backdrop-blur-md shadow-xl border border-emerald-700/50">
+            {/* Compact Floating Section Switcher (Visible on both iPhone and Desktop) */}
+            <div className="pointer-events-auto flex-1 sm:flex-initial flex items-center justify-around sm:justify-start gap-0.5 sm:gap-1 p-1 sm:p-1.5 rounded-2xl bg-[#143225]/95 text-white backdrop-blur-md shadow-2xl border border-emerald-700/60">
               {quickNavItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
@@ -85,13 +85,13 @@ export const ScrollProgress: React.FC<ScrollProgressProps> = ({
                     key={item.id}
                     type="button"
                     onClick={() => onTabChange(item.id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+                    className={`flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl text-[10px] sm:text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-1 sm:flex-initial ${
                       isActive
                         ? 'bg-amber-500 text-stone-950 font-bold shadow-sm'
                         : 'text-emerald-200 hover:text-white hover:bg-emerald-800/60'
                     }`}
                   >
-                    <Icon className="w-3.5 h-3.5" />
+                    <Icon className="w-3.5 h-3.5 shrink-0" />
                     <span>{item.label}</span>
                   </button>
                 );
@@ -106,9 +106,9 @@ export const ScrollProgress: React.FC<ScrollProgressProps> = ({
               whileTap={{ scale: 0.94 }}
               aria-label="Cuộn lên đầu trang"
               title="Cuộn lên đầu trang"
-              className="p-3.5 rounded-2xl bg-[#1B4332] hover:bg-[#2D6A4F] text-amber-300 shadow-xl border border-emerald-600/50 flex items-center justify-center transition-colors cursor-pointer"
+              className="pointer-events-auto p-3 sm:p-3.5 rounded-2xl bg-[#1B4332] hover:bg-[#2D6A4F] text-amber-300 shadow-2xl border border-emerald-600/60 flex items-center justify-center transition-colors cursor-pointer shrink-0"
             >
-              <ArrowUp className="w-5 h-5" />
+              <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5" />
             </motion.button>
           </motion.div>
         )}

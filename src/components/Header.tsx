@@ -33,7 +33,7 @@ export const Header: React.FC<HeaderProps> = ({
       label: 'Quy mô phục vụ',
       icon: Users,
       iconColor: 'text-emerald-400',
-      value: `${portion} người lớn · 7 ngày`,
+      value: `${portion} người · 7 ngày`,
       valueColor: 'text-white',
       sub: portion === 1 ? '21 bữa = 21 suất ăn' : portion === 2 ? '21 bữa = 42 suất ăn' : '21 bữa = 84 suất ăn',
       colSpan: '',
@@ -68,24 +68,24 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="bg-gradient-to-b from-[#143225] via-[#1B4332] to-[#24523E] text-white pt-9 pb-10 px-4 sm:px-6 lg:px-8 border-b border-emerald-700/50 shadow-xl overflow-hidden">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <header className="bg-gradient-to-b from-[#143225] via-[#1B4332] to-[#24523E] text-white pt-6 sm:pt-9 pb-8 sm:pb-10 px-3.5 sm:px-6 lg:px-8 border-b border-emerald-700/50 shadow-xl overflow-hidden">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
         {/* Top Kicker & Title */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center space-y-3"
+          className="text-center space-y-2.5 sm:space-y-3"
         >
-          <div className="text-emerald-300 text-xs sm:text-sm font-semibold tracking-wider">
+          <div className="text-emerald-300 text-[11px] sm:text-sm font-semibold tracking-wide sm:tracking-wider leading-snug px-1">
             Cẩm Nang Thực Hành Nấu Ăn & Quản Lý Ngân Sách · Kế Hoạch 4 Tuần (Tuần 1)
           </div>
 
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white font-serif leading-tight max-w-4xl mx-auto text-balance">
-            Thực Đơn Eat Clean Tuần 1: <span className="text-amber-400 tabular-nums">{portion * 21} Suất Ăn Đủ Chất</span> Chỉ Với <span className="text-emerald-300 tabular-nums">{formatVND(budget.totalCost)}</span>
+          <h1 className="text-[22px] sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white font-serif leading-[1.25] sm:leading-tight max-w-4xl mx-auto text-balance">
+            Thực Đơn Eat Clean Tuần 1: <span className="text-amber-400 tabular-nums">{portion * 21} Suất Ăn Đủ Chất</span> Chỉ Với <span className="text-emerald-300 tabular-nums whitespace-nowrap">{formatVND(budget.totalCost)}</span>
           </h1>
 
-          <p className="max-w-3xl mx-auto text-emerald-100/90 text-sm sm:text-base leading-relaxed">
+          <p className="max-w-3xl mx-auto text-emerald-100/90 text-xs sm:text-base leading-relaxed px-1">
             Hướng dẫn chi tiết định lượng nguyên liệu, quy trình sơ chế Chủ Nhật (90 phút) và kỹ thuật chế biến từng món ăn cho {portion} người trong 7 ngày theo chuẩn bảo quản thực phẩm USDA FSIS.
           </p>
         </motion.div>
@@ -95,12 +95,12 @@ export const Header: React.FC<HeaderProps> = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="bg-[#112d22]/90 border border-emerald-600/40 rounded-2xl p-4 sm:p-6 shadow-lg backdrop-blur-sm"
+          className="bg-[#112d22]/90 border border-emerald-600/40 rounded-2xl p-3.5 sm:p-6 shadow-lg backdrop-blur-sm"
         >
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 sm:gap-5">
             <div className="space-y-1.5">
-              <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
-                <Flame className="w-4 h-4 text-amber-400 shrink-0" />
+              <div className="flex items-start sm:items-center gap-2 text-amber-400 font-bold text-xs sm:text-sm">
+                <Flame className="w-4 h-4 text-amber-400 shrink-0 mt-0.5 sm:mt-0" />
                 <span>Nguyên Tắc Vàng Tiết Kiệm Thời Gian & Chi Phí</span>
               </div>
               <p className="text-stone-200 text-xs sm:text-sm leading-relaxed max-w-3xl">
@@ -108,42 +108,45 @@ export const Header: React.FC<HeaderProps> = ({
               </p>
             </div>
 
-            {/* Portion switcher */}
+            {/* Portion switcher - iPhone safe grid */}
             <div className="flex flex-col items-start lg:items-end gap-1.5 shrink-0 w-full lg:w-auto">
               <span className="text-xs text-emerald-300/90 font-medium">Chọn khẩu phần ăn:</span>
-              <div className="inline-flex rounded-xl bg-emerald-950/80 p-1 border border-emerald-700/60 shadow-inner w-full lg:w-auto">
+              <div className="grid grid-cols-3 lg:inline-flex gap-1 rounded-xl bg-emerald-950/90 p-1 border border-emerald-700/60 shadow-inner w-full lg:w-auto">
                 <button
                   type="button"
                   onClick={() => onPortionChange(1)}
-                  className={`flex-1 lg:flex-none px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+                  className={`px-2 sm:px-3 py-2 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold transition-all text-center cursor-pointer flex flex-col sm:flex-row items-center justify-center sm:gap-1 leading-tight ${
                     portion === 1
                       ? 'bg-amber-500 text-stone-950 shadow-md font-bold'
                       : 'text-emerald-200 hover:text-white hover:bg-emerald-800/50'
                   }`}
                 >
-                  1 Người (21 suất)
+                  <span>1 Người</span>
+                  <span className="text-[10px] sm:text-xs opacity-85">(21 suất)</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => onPortionChange(2)}
-                  className={`flex-1 lg:flex-none px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+                  className={`px-1.5 sm:px-3 py-2 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold transition-all text-center cursor-pointer flex flex-col sm:flex-row items-center justify-center sm:gap-1 leading-tight ${
                     portion === 2
                       ? 'bg-amber-500 text-stone-950 shadow-md font-bold'
                       : 'text-emerald-200 hover:text-white hover:bg-emerald-800/50'
                   }`}
                 >
-                  2 Người · Chuẩn (42 suất)
+                  <span>2 Người</span>
+                  <span className="text-[10px] sm:text-xs opacity-85 whitespace-nowrap">(42 suất · Chuẩn)</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => onPortionChange(4)}
-                  className={`flex-1 lg:flex-none px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+                  className={`px-2 sm:px-3 py-2 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold transition-all text-center cursor-pointer flex flex-col sm:flex-row items-center justify-center sm:gap-1 leading-tight ${
                     portion === 4
                       ? 'bg-amber-500 text-stone-950 shadow-md font-bold'
                       : 'text-emerald-200 hover:text-white hover:bg-emerald-800/50'
                   }`}
                 >
-                  4 Người (84 suất)
+                  <span>4 Người</span>
+                  <span className="text-[10px] sm:text-xs opacity-85">(84 suất)</span>
                 </button>
               </div>
             </div>
@@ -151,7 +154,7 @@ export const Header: React.FC<HeaderProps> = ({
         </motion.div>
 
         {/* 5 KPI Metric Cards with Staggered Reveal */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-4">
           {kpiCards.map((card, idx) => {
             const Icon = card.icon;
             return (
@@ -161,17 +164,17 @@ export const Header: React.FC<HeaderProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 whileHover={{ y: -4 }}
                 transition={{ duration: 0.45, delay: 0.15 + idx * 0.06, ease: [0.16, 1, 0.3, 1] }}
-                className="bg-emerald-900/60 border border-emerald-700/40 rounded-xl p-3.5 sm:p-4 hover:border-emerald-500/60 transition-colors flex flex-col justify-between"
+                className="bg-emerald-900/60 border border-emerald-700/40 rounded-xl p-3 sm:p-4 hover:border-emerald-500/60 transition-colors flex flex-col justify-between"
               >
-                <div className="flex items-center justify-between text-emerald-300 text-xs">
-                  <span>{card.label}</span>
-                  <Icon className={`w-4 h-4 ${card.iconColor}`} />
+                <div className="flex items-center justify-between gap-1 text-emerald-300 text-[11px] sm:text-xs">
+                  <span className="truncate">{card.label}</span>
+                  <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${card.iconColor}`} />
                 </div>
                 <div className="mt-2">
-                  <div className={`text-lg sm:text-xl font-bold tabular-nums ${card.valueColor}`}>
+                  <div className={`text-base sm:text-xl font-bold tabular-nums leading-snug ${card.valueColor}`}>
                     {card.value}
                   </div>
-                  <div className="text-xs text-emerald-300/80 mt-0.5 tabular-nums">
+                  <div className="text-[11px] sm:text-xs text-emerald-300/80 mt-0.5 tabular-nums leading-tight">
                     {card.sub}
                   </div>
                 </div>
@@ -185,29 +188,30 @@ export const Header: React.FC<HeaderProps> = ({
             animate={{ opacity: 1, y: 0 }}
             whileHover={{ y: -4 }}
             transition={{ duration: 0.45, delay: 0.39, ease: [0.16, 1, 0.3, 1] }}
-            className="col-span-2 lg:col-span-1 bg-emerald-900/60 border border-emerald-700/40 rounded-xl p-3.5 sm:p-4 hover:border-emerald-500/60 transition-colors flex flex-col justify-between"
+            className="col-span-2 lg:col-span-1 bg-emerald-900/60 border border-emerald-700/40 rounded-xl p-3 sm:p-4 hover:border-emerald-500/60 transition-colors flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between text-emerald-300 text-xs">
+            <div className="flex items-center justify-between text-emerald-300 text-[11px] sm:text-xs">
               <span>Cấu trúc nguyên liệu chính</span>
-              <ChefHat className="w-4 h-4 text-amber-400" />
+              <ChefHat className="w-4 h-4 text-amber-400 shrink-0" />
             </div>
-            <div className="mt-1.5 text-xs text-stone-200 leading-snug tabular-nums">
+            <div className="mt-1.5 text-xs text-stone-200 leading-relaxed tabular-nums">
               <span className="font-semibold text-white">{budget.totalKgMeatFish} kg</span> thịt/cá · <span className="font-semibold text-white">{budget.totalKgTofu} kg</span> đậu · <span className="font-semibold text-white">{budget.totalEggs}</span> trứng · <span className="font-semibold text-white">{budget.totalKgRice} kg</span> gạo · <span className="font-semibold text-white">{budget.totalKgVeggies} kg</span> rau · <span className="font-semibold text-white">{budget.totalKgFruit} kg</span> trái cây
             </div>
           </motion.div>
         </div>
 
-        {/* Quick Navigation Tabs */}
+        {/* Quick Navigation Tabs - 2-column grid on iPhone, row on tablet/desktop */}
         <motion.nav
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
           aria-label="Phân khu chính"
-          className="flex items-center justify-start sm:justify-center overflow-x-auto gap-2 pt-2 scrollbar-none"
+          className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-2 pt-1"
         >
-          {navItems.map((item) => {
+          {navItems.map((item, index) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
+            const isLastOdd = index === navItems.length - 1;
             return (
               <motion.button
                 key={item.id}
@@ -215,14 +219,14 @@ export const Header: React.FC<HeaderProps> = ({
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => onTabChange(item.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap shrink-0 shadow-sm cursor-pointer ${
+                className={`${isLastOdd ? 'col-span-2 sm:col-span-1' : ''} flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors shadow-sm cursor-pointer ${
                   isActive
                     ? 'bg-amber-500 text-stone-950 font-bold shadow-md'
                     : 'bg-emerald-950/60 text-emerald-200 hover:text-white hover:bg-emerald-900/80 border border-emerald-700/50'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-stone-950' : 'text-emerald-400'}`} />
-                <span>{item.label}</span>
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-stone-950' : 'text-emerald-400'}`} />
+                <span className="truncate">{item.label}</span>
               </motion.button>
             );
           })}
