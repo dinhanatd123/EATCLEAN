@@ -1,5 +1,30 @@
 export type PortionSize = 1 | 2 | 4; // 1 người (21 suất), 2 người (42 suất - chuẩn), 4 người (84 suất)
 
+export type BudgetTierId = '885k' | '1m' | '2m' | '3.5m' | '5m';
+
+export interface BudgetTierMetadata {
+  id: BudgetTierId;
+  shortLabel: string;
+  name: string;
+  subtitle: string;
+  ceilingBudget: number; // for 2 people
+  plannedCost: number; // for 2 people
+  contingencyFund: number; // for 2 people
+  contingencyPercent: string;
+  costPerServing: number;
+  proteinSummary: string;
+  carbVeggieSummary: string;
+  totalKgMeatFish: number;
+  totalKgTofu: number;
+  totalEggs: number;
+  totalKgRice: number;
+  totalKgCarbTotal: number;
+  totalKgVeggies: number;
+  totalKgFruit: number;
+  highlightBadge: string;
+  oilType: string;
+}
+
 export interface IngredientItem {
   id: string;
   name: string;
@@ -11,6 +36,15 @@ export interface IngredientItem {
   baseTotalPrice: number; // e.g. 135000
   distribution: string; // "Chia 300 g (T2) + 600 g (T2) + 600 g (T6)"
   shopPhase: 'Chủ Nhật' | 'Giữa tuần' | 'Cả tuần';
+}
+
+export interface BudgetBreakdownGroup {
+  name: string;
+  amount: number;
+  percentage: number;
+  ceilingPercent: number;
+  color: string;
+  note?: string;
 }
 
 export interface DayMealPlan {
@@ -38,6 +72,7 @@ export interface DayMealPlan {
     ingredients: string;
     servingsCount: number; // 4 suất (2 tối + 2 trưa mai) hoặc 2 suất
     prepNote: string;
+    targetTemp?: string;
     image: string;
   };
 }
@@ -69,7 +104,8 @@ export interface Recipe {
   servingsText: string; // "Mẻ 4 suất" or "Khẩu phần 2 người"
   servingsCount: number;
   cookTime: string; // "15–20 phút"
-  targetTemp?: string; // "74°C"
+  targetTemp?: string; // "74°C" or "63°C"
+  tierTag?: string; // e.g., "Mức 1–4" or "Mức 3–4"
   imageUrl: string;
   ingredients: {
     name: string;

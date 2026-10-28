@@ -7,17 +7,21 @@ import {
   Droplet,
   RotateCcw,
 } from 'lucide-react';
-import { PortionSize } from '../types';
-import { calculateOilWeeklyQuota } from '../utils/calculator';
+import { PortionSize, BudgetTierId } from '../types';
+import { calculateOilWeeklyQuota, calculateScaleFactor } from '../utils/calculator';
+import { BUDGET_TIERS_METADATA } from '../data/flexibleEatCleanData';
 
 interface FoodSafetyGuideProps {
   portion: PortionSize;
+  budgetTier: BudgetTierId;
 }
 
 const STORAGE_KEY_OIL_TRACKER = 'eatclean_oil_tracker_ml_v1';
 
-export const FoodSafetyGuide: React.FC<FoodSafetyGuideProps> = ({ portion }) => {
+export const FoodSafetyGuide: React.FC<FoodSafetyGuideProps> = ({ portion, budgetTier }) => {
   const oilQuota = calculateOilWeeklyQuota(portion);
+  const factor = calculateScaleFactor(portion);
+  const tierMeta = BUDGET_TIERS_METADATA[budgetTier];
 
   const [oilUsedMl, setOilUsedMl] = useState<number>(() => {
     try {
@@ -49,66 +53,62 @@ export const FoodSafetyGuide: React.FC<FoodSafetyGuideProps> = ({ portion }) => 
 
   const safetyCards = [
     {
-      kicker: 'Khâu 1 · Sau Khi Nấu',
-      title: 'Làm Lạnh Nhanh (≤ 4°C)',
+      kicker: 'Khâu 1 · Làm Lạnh Nhanh',
+      title: 'Chia Hộp Nông ≤ 5 cm (≤ 4°C)',
       icon: Snowflake,
       iconBg: 'bg-blue-50 text-blue-600',
       kickerColor: 'text-blue-700',
       description: (
         <>
-          Chia thức ăn vào <strong className="text-stone-900">hộp nông</strong> (dày không quá 5 cm) để nhiệt tỏa nhanh đều. Cất ngay vào ngăn mát tủ lạnh (<strong className="text-blue-900">≤ 4°C</strong>) trong vòng <strong className="text-blue-900">2 giờ</strong> sau khi nấu (hoặc <strong className="text-red-700">1 giờ</strong> khi nhiệt độ phòng mùa hè &gt; 32°C).
+          Chia thức ăn vào <strong className="text-stone-900">hộp nông (độ dày ≤ 5 cm)</strong>, để mở hé nắp 15 phút thoát hơi nóng rồi cất ngăn mát tủ lạnh (<strong className="text-blue-900">≤ 4°C</strong>) trong vòng tối đa <strong className="text-blue-900">2 giờ</strong> sau nấu (hoặc <strong className="text-red-700">1 giờ</strong> nếu nhiệt độ phòng &gt; 32°C).
         </>
       ),
-      tip: 'Tránh để nồi lớn ủ nhiệt trên bếp vì dải 5°C – 60°C là “vùng nguy hiểm” vi khuẩn sinh sôi gấp đôi mỗi 20 phút.',
+      tip: 'Xếp tách biệt cơm lứt một bên, thịt/cá ở giữa và rau củ hấp một bên để hạt cơm không bị nhão.',
     },
     {
-      kicker: 'Khâu 2 · Đến Công Sở',
-      title: 'Vận Chuyển & Hâm Nóng (≥ 74°C)',
+      kicker: 'Khâu 2 · Vận Chuyển & Hâm Nóng',
+      title: 'Chuẩn Tâm 74°C & 63°C (USDA FSIS)',
       icon: Flame,
       iconBg: 'bg-amber-50 text-amber-600',
       kickerColor: 'text-amber-700',
       description: (
         <>
-          Mang đi làm bằng <strong className="text-stone-900">túi giữ nhiệt có đá gel</strong>, cất ngay vào tủ lạnh cơ quan khi vừa đến nơi. Khi ăn trưa, hâm nóng đều tới nhiệt độ tâm <strong className="text-amber-900">≥ 74°C</strong> (USDA Reheating Guide) để tiêu diệt mầm bệnh.
+          Mang đi làm bằng <strong className="text-stone-900">túi giữ nhiệt có đá gel lạnh</strong>. Gia cầm nấu đạt tâm <strong className="text-amber-900">≥ 74°C</strong>; Thịt bò nguyên miếng & Cá hồi áp chảo tối đạt <strong className="text-amber-900">≥ 63°C (Medium)</strong>. Khi ăn trưa, hâm nóng đều tới <strong className="text-amber-900">≥ 74°C</strong> (tôm & bò hâm 1,5–2 phút ở nhiệt vừa).
         </>
       ),
-      tip: 'Trước khi đậy nắp quay lò vi sóng, châm thêm 1–2 thìa nước lọc hoặc nước hấp gừng để tạo hơi nước giúp thịt cá mềm mọng.',
+      tip: 'Chỉ rưới sốt chấm chanh vàng nước mắm cốt lên thịt/cá sau khi đã quay nóng để giữ trọn hương vị tươi mới.',
     },
     {
-      kicker: 'Khâu 3 · Phân Loại Ngăn Tủ',
-      title: 'Thời Hạn Bảo Quản Chuẩn',
+      kicker: 'Khâu 3 · Thời Hạn Bảo Quản',
+      title: 'Cấp Đông Hải Sản & Đạm ≤ -18°C',
       icon: Clock,
       iconBg: 'bg-emerald-50 text-emerald-600',
       kickerColor: 'text-emerald-700',
       description: (
         <>
-          Đồ chín ngăn mát giữ tối đa <strong className="text-stone-900">3–4 ngày</strong> (thực đơn này tối ưu ăn ngay hôm sau). Gà sống ngăn mát chỉ <strong className="text-stone-900">1–2 ngày</strong>; phần thịt/cá dùng cho nửa cuối tuần phải <strong className="text-emerald-900">cấp đông ≤ -18°C</strong> ngay từ Chủ Nhật.
+          Thức ăn chín bảo quản ngăn mát <strong className="text-stone-900">3–4 ngày</strong> (thực đơn này tiêu thụ ngay vào trưa hôm sau). Hải sản tươi (<strong className="text-stone-900">tôm, cồi sò điệp, cá hồi</strong>) và thịt dùng từ Thứ Tư trở đi bắt buộc <strong className="text-emerald-900">cấp đông ≤ -18°C</strong> từ Chủ Nhật.
         </>
       ),
-      tip: 'Rã đông an toàn: Chuyển đạm từ ngăn đá xuống ngăn mát từ tối hôm trước; tuyệt đối không ngâm nước nóng hay để trên bàn bếp.',
+      tip: 'Luôn rã đông chậm trong ngăn mát (2–4°C) từ tối hôm trước; tuyệt đối không rã đông thịt cá ở nhiệt độ phòng.',
     },
   ];
 
   return (
-    <motion.section
+    <section
       id="safety"
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       className="space-y-8"
     >
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-stone-200 pb-5">
         <div>
           <div className="text-emerald-800 text-xs font-semibold tracking-wider mb-1.5">
-            05. Chuẩn Vệ Sinh Thực Phẩm · Nguồn từ Slide 01, 04, 08
+            05. Chuẩn Vệ Sinh Thực Phẩm · Nguồn từ Slide 05, 07, 08
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1B4332] font-serif text-balance">
-            Quy Chuẩn An Toàn Thực Phẩm USDA FSIS & Định Mức Dầu Gia Vị
+            Quy Chuẩn Làm Nguội, Mang Đi Làm & Hâm Nóng (USDA FSIS & FoodSafety.gov)
           </h2>
           <p className="text-stone-600 text-sm mt-1">
-            Tiêu chuẩn kỹ thuật bắt buộc bảo vệ hệ tiêu hóa, giữ trọn độ ẩm và đảm bảo dưỡng chất cho các bữa ăn meal prep.
+            Tiêu chuẩn kỹ thuật bắt buộc cho mọi phân khúc ngân sách (1–5 Triệu) giúp bảo vệ hệ tiêu hóa và giữ trọn độ mọng nước.
           </p>
         </div>
       </div>
@@ -154,7 +154,7 @@ export const FoodSafetyGuide: React.FC<FoodSafetyGuideProps> = ({ portion }) => 
         })}
       </div>
 
-      {/* Bottom Section: Oil Intake Tracker & Natural Seasonings */}
+      {/* Bottom Section: Oil Intake Tracker & Nutritional Balance Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column (6 cols): Weekly Oil Budget Tracker */}
         <motion.div
@@ -168,10 +168,10 @@ export const FoodSafetyGuide: React.FC<FoodSafetyGuideProps> = ({ portion }) => 
             <div className="space-y-1">
               <span className="text-xs font-bold text-amber-700 flex items-center gap-1.5">
                 <Droplet className="w-4 h-4 text-amber-500 fill-amber-500" />
-                <span>Bộ Theo Dõi Dầu Ăn Tuần ({portion} người)</span>
+                <span>Kiểm Soát Chất Béo Ẩn ({tierMeta.shortLabel} · {portion} người)</span>
               </span>
               <h3 className="text-lg font-bold text-stone-900 font-serif tabular-nums">
-                Định Mức Dầu Ăn: {oilQuota.minMl}–{oilQuota.maxMl} ml / Tuần
+                Định Mức Dầu Tốt: {oilQuota.minMl}–{oilQuota.maxMl} ml / Tuần
               </h3>
             </div>
             <button
@@ -186,7 +186,7 @@ export const FoodSafetyGuide: React.FC<FoodSafetyGuideProps> = ({ portion }) => 
           </div>
 
           <p className="text-xs text-stone-600 leading-relaxed tabular-nums">
-            Chỉ dùng <strong>10–15 ml dầu</strong> (đậu nành hoặc hạt cải) cho mỗi mẻ nấu 4 suất. Cả tuần dùng khoảng <strong>140–180 ml</strong> trên chai 250 ml (tiết kiệm đáng kể calo rỗng và bảo vệ tim mạch).
+            Loại dầu khuyến nghị cho {tierMeta.shortLabel}: <strong>{tierMeta.oilType}</strong>. Cả tuần chỉ dùng khoảng <strong>{oilQuota.minMl}–{oilQuota.maxMl} ml</strong> (ưu tiên vị ngọt tự nhiên từ nấm, nước dừa, cà chua, sả, gừng, tỏi và thảo mộc tươi).
           </p>
 
           {/* Oil Gauge Bar */}
@@ -226,7 +226,7 @@ export const FoodSafetyGuide: React.FC<FoodSafetyGuideProps> = ({ portion }) => 
               className="py-2.5 px-2 sm:px-3 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-[11px] sm:text-xs font-semibold text-center leading-tight cursor-pointer flex flex-col items-center justify-center"
             >
               <span className="font-bold">+5 ml</span>
-              <span className="text-[10px] opacity-80">1 thìa cà phê</span>
+              <span className="text-[10px] opacity-80">Mẻ cá hồi</span>
             </motion.button>
             <motion.button
               type="button"
@@ -236,7 +236,7 @@ export const FoodSafetyGuide: React.FC<FoodSafetyGuideProps> = ({ portion }) => 
               className="py-2.5 px-2 sm:px-3 rounded-xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-950 text-[11px] sm:text-xs font-bold text-center leading-tight cursor-pointer flex flex-col items-center justify-center"
             >
               <span>+10 ml</span>
-              <span className="text-[10px] font-medium opacity-80">Mẻ áp chảo</span>
+              <span className="text-[10px] font-medium opacity-80">Mẻ áp chảo gà/bò</span>
             </motion.button>
             <motion.button
               type="button"
@@ -251,7 +251,7 @@ export const FoodSafetyGuide: React.FC<FoodSafetyGuideProps> = ({ portion }) => 
           </div>
         </motion.div>
 
-        {/* Right Column (6 cols): Natural Spices & Fruit Guide */}
+        {/* Right Column (6 cols): Slide 08 Nutritional Balance Summary */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -261,33 +261,30 @@ export const FoodSafetyGuide: React.FC<FoodSafetyGuideProps> = ({ portion }) => 
         >
           <div className="space-y-1">
             <span className="text-xs font-bold text-emerald-700">
-              Gia Vị Tự Nhiên & Trái Cây
+              Slide 08 · Tổng Kết Cân Bằng Dinh Dưỡng Cả Tuần
             </span>
             <h3 className="text-lg font-bold text-stone-900 font-serif">
-              Tối Giản Sốt Công Nghiệp
+              Đa Dạng Hóa 6 Nguồn Đạm & Trái Cây Tráng Miệng
             </h3>
           </div>
 
           <div className="space-y-3 text-xs sm:text-sm text-stone-600 tabular-nums">
             <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-100 space-y-1">
-              <strong className="text-emerald-950 font-bold block">1. Gia vị thơm tự nhiên:</strong>
+              <strong className="text-emerald-950 font-bold block">1. Đa dạng hóa 6 nguồn đạm ({(tierMeta.totalKgMeatFish * factor).toFixed(1)} kg thịt/cá/tôm + {Math.round(20 * factor)} trứng + {(1.6 * factor).toFixed(1)} kg đậu):</strong>
               <p>
-                Tạo hương vị đậm đà hấp dẫn bằng gừng tươi, tỏi băm, sả, hành hoa, chanh tươi và nêm nhạt với muối i-ốt hoặc nước mắm truyền thống. Không cần dùng các loại xốt đóng chai chứa nhiều đường siro bắp và chất điều vị.
+                Kết hợp hài hòa <strong>Gia cầm (Gà/Vịt)</strong> + <strong>Thịt đỏ (Heo/Bò)</strong> + <strong>Cá biển/sông (Cá hồi/Cá tuyết/Cá chẽm/Cá nục)</strong> + <strong>Giáp xác (Tôm/Cồi sò điệp)</strong> + <strong>Trứng</strong> + <strong>Đạm thực vật (Đậu hũ, Nấm, Hạt)</strong>.
               </p>
             </div>
 
             <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-100 space-y-1">
-              <strong className="text-amber-950 font-bold block">2. Trái cây tráng miệng tuần:</strong>
+              <strong className="text-amber-950 font-bold block">2. Trái cây tráng miệng ({(tierMeta.totalKgFruit * factor).toFixed(1)} kg/tuần):</strong>
               <p>
-                · <strong>1,0 kg ổi tươi giòn:</strong> Cung cấp vitamin C dồi dào, chia ăn tráng miệng sau bữa trưa hoặc bữa tối trong tuần.
-              </p>
-              <p>
-                · <strong>1,5 kg chuối chín (900g thịt quả):</strong> Dùng thái lát nấu cùng cháo yến mạch bữa sáng Thứ Hai, Thứ Tư, Thứ Sáu để tạo vị ngọt tự nhiên không cần đường cát.
+                Chia đều khoảng <strong>200 g/người</strong> sau bữa trưa hoặc bữa chiều (thanh long, chuối, cam, táo, kiwi vàng, dâu tây, việt quất) để bổ sung enzyme tiêu hóa và vitamin tự nhiên mà không cần đồ ngọt công nghiệp.
               </p>
             </div>
           </div>
         </motion.div>
       </div>
-    </motion.section>
+    </section>
   );
 };

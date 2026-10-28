@@ -1,4 +1,5 @@
-import { PortionSize, IngredientItem } from '../types';
+import { PortionSize, IngredientItem, BudgetTierId } from '../types';
+import { BUDGET_TIERS_METADATA } from '../data/flexibleEatCleanData';
 
 export function calculateScaleFactor(portion: PortionSize): number {
   switch (portion) {
@@ -23,12 +24,10 @@ export function formatVND(amount: number): string {
 export function scaleTextNumbers(text: string, factor: number): string {
   if (factor === 1.0) return text;
 
-  // Replace occurrences like "160 g" or "160g" or "1,5 kg" or "320g" or "4 quả"
   return text.replace(/(\d+(?:[.,]\d+)?)\s*(g|kg|ml|lít|L|quả|thìa|mẻ|suất)/gi, (match, numStr, unit) => {
     const cleanNum = parseFloat(numStr.replace(',', '.'));
     if (isNaN(cleanNum)) return match;
     const scaled = cleanNum * factor;
-    // Format to max 1 decimal place if has decimals
     const formatted = scaled % 1 === 0 ? scaled.toString() : scaled.toFixed(1).replace('.', ',');
     return `${formatted} ${unit}`;
   });
@@ -38,10 +37,13 @@ export interface BudgetCalculationResult {
   totalCost: number;
   ceilingBudget: number;
   contingencyRemaining: number;
+  contingencyPercent: string;
+  costPerServing: number;
   totalKgMeatFish: number;
   totalKgTofu: number;
   totalEggs: number;
   totalKgRice: number;
+  totalKgCarbTotal: number;
   totalKgVeggies: number;
   totalKgFruit: number;
 }
@@ -49,10 +51,12 @@ export interface BudgetCalculationResult {
 export function calculateBudgetTotals(
   items: IngredientItem[],
   portion: PortionSize = 2,
-  customPrices?: Record<string, number>
+  customPrices?: Record<string, number>,
+  tierId: BudgetTierId = '885k'
 ): BudgetCalculationResult {
   const factor = calculateScaleFactor(portion);
-  const ceilingBudget = 1000000 * factor;
+  const tierMeta = BUDGET_TIERS_METADATA[tierId] || BUDGET_TIERS_METADATA['885k'];
+  const ceilingBudget = tierMeta.ceilingBudget * factor;
 
   let totalCost = 0;
   items.forEach((item) => {
@@ -63,24 +67,29 @@ export function calculateBudgetTotals(
   });
 
   const contingencyRemaining = ceilingBudget - totalCost;
+  const totalServings = portion * 21;
+  const costPerServing = Math.round(totalCost / totalServings);
 
   return {
     totalCost: Math.round(totalCost),
     ceilingBudget: Math.round(ceilingBudget),
     contingencyRemaining: Math.round(contingencyRemaining),
-    totalKgMeatFish: Number((3.3 * factor).toFixed(2)),
-    totalKgTofu: Number((1.6 * factor).toFixed(2)),
-    totalEggs: Math.round(20 * factor),
-    totalKgRice: Number((2.4 * factor).toFixed(2)),
-    totalKgVeggies: Number((6.0 * factor).toFixed(2)),
-    totalKgFruit: Number((2.5 * factor).toFixed(2)),
+    contingencyPercent: tierMeta.contingencyPercent,
+    costPerServing,
+    totalKgMeatFish: Number((tierMeta.totalKgMeatFish * factor).toFixed(2)),
+    totalKgTofu: Number((tierMeta.totalKgTofu * factor).toFixed(2)),
+    totalEggs: Math.round(tierMeta.totalEggs * factor),
+    totalKgRice: Number((tierMeta.totalKgRice * factor).toFixed(2)),
+    totalKgCarbTotal: Number((tierMeta.totalKgCarbTotal * factor).toFixed(2)),
+    totalKgVeggies: Number((tierMeta.totalKgVeggies * factor).toFixed(2)),
+    totalKgFruit: Number((tierMeta.totalKgFruit * factor).toFixed(2)),
   };
 }
 
 /**
- * Simulation helper from Slide 03:
- * Swapping 600g lean pork shoulder (base 90.000đ) with 600g chicken breast (base 54.000đ)
- * gives an immediate savings of 36.000đ!
+ * Simulation helper from Slide 03 / Slide 04:
+ * - Tier 885k / 1m: Swapping 600g lean pork shoulder (base 90.000đ) with 600g chicken breast/thigh (base 54.000đ) saves 36.000đ
+ * - Tier 2m / 3.5m / 5m: Swapping 600g Vietnamese beef tenderloin (180.000đ) with 600g duck breast fillet or mackerel (120.000đ) saves 60.000đ
  */
 export function calculateSwapSavings(
   porkPriceFor600g: number = 90000,

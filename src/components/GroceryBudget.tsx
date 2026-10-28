@@ -9,9 +9,15 @@ import {
   AlertCircle,
   PiggyBank,
   ArrowRightLeft,
+  Sliders,
+  BarChart3,
 } from 'lucide-react';
-import { PortionSize } from '../types';
-import { GROCERY_ITEMS, BUDGET_BREAKDOWN } from '../data/eatCleanData';
+import { PortionSize, BudgetTierId } from '../types';
+import {
+  GROCERY_BY_TIER,
+  BREAKDOWN_BY_TIER,
+  BUDGET_TIERS_METADATA,
+} from '../data/flexibleEatCleanData';
 import {
   calculateScaleFactor,
   formatVND,
@@ -19,17 +25,24 @@ import {
 
 interface GroceryBudgetProps {
   portion: PortionSize;
+  budgetTier: BudgetTierId;
+  onBudgetTierChange: (tier: BudgetTierId) => void;
   onOpenExportModal: () => void;
 }
 
-const STORAGE_KEY_CHECKED = 'eatclean_groceries_checked_v1';
-const STORAGE_KEY_SWAP = 'eatclean_pork_swapped_v1';
+const STORAGE_KEY_CHECKED = 'eatclean_groceries_checked_v2';
+const STORAGE_KEY_SWAP = 'eatclean_smart_swapped_v2';
 
 export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
   portion,
+  budgetTier,
+  onBudgetTierChange,
   onOpenExportModal,
 }) => {
   const factor = calculateScaleFactor(portion);
+  const tierMeta = BUDGET_TIERS_METADATA[budgetTier];
+  const baseItems = GROCERY_BY_TIER[budgetTier];
+  const breakdownGroups = BREAKDOWN_BY_TIER[budgetTier];
 
   const [checkedMap, setCheckedMap] = useState<Record<string, boolean>>(() => {
     try {
@@ -40,13 +53,17 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
     }
   });
 
-  const [isPorkSwappedToChicken, setIsPorkSwappedToChicken] = useState<boolean>(() => {
+  const [isSmartSwapped, setIsSmartSwapped] = useState<boolean>(() => {
     try {
       return localStorage.getItem(STORAGE_KEY_SWAP) === 'true';
     } catch {
       return false;
     }
   });
+
+  // Intermediate Odd Budget Upgrades from Slide 04 (1,5Tr • 2,5Tr • 4,0Tr)
+  const [upgradeMondaySalmon, setUpgradeMondaySalmon] = useState<boolean>(false); // +250k/500g
+  const [upgradeFridayBeef, setUpgradeFridayBeef] = useState<boolean>(false); // +280k/600g
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedPhase, setSelectedPhase] = useState<string>('all');
@@ -61,11 +78,11 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY_SWAP, isPorkSwappedToChicken ? 'true' : 'false');
+      localStorage.setItem(STORAGE_KEY_SWAP, isSmartSwapped ? 'true' : 'false');
     } catch (e) {
       console.warn('Failed saving swap state', e);
     }
-  }, [isPorkSwappedToChicken]);
+  }, [isSmartSwapped]);
 
   const toggleCheck = (id: string) => {
     setCheckedMap((prev) => ({
@@ -80,20 +97,29 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
 
   const handleSelectAll = () => {
     const all: Record<string, boolean> = {};
-    GROCERY_ITEMS.forEach((item) => {
+    baseItems.forEach((item) => {
       all[item.id] = true;
     });
     setCheckedMap(all);
   };
 
-  const effectiveItems = GROCERY_ITEMS.map((item) => {
-    if (item.id === 'pork-shoulder' && isPorkSwappedToChicken) {
+  const isLowTier = budgetTier === '885k' || budgetTier === '1m';
+  const swapSavingBase = isLowTier ? 36000 : 60000;
+
+  const effectiveItems = baseItems.map((item, idx) => {
+    // Apply Smart Swap on the primary meat item
+    if (isSmartSwapped && idx === 0) {
+      if (isLowTier) {
+        return {
+          ...item,
+          name: `${item.name} (Đã hoán đổi 600g heo ➔ 600g ức gà, tiết kiệm ${formatVND(36000 * factor)})`,
+          baseTotalPrice: item.baseTotalPrice - 36000,
+        };
+      }
       return {
         ...item,
-        name: 'Ức gà thay thế thịt heo (Tiết kiệm 36k)',
-        baseAmount: '0,6 kg',
-        baseTotalPrice: 54000,
-        distribution: 'Hoán đổi thông minh: Dùng 600g ức gà thay thế heo nạc vai cho tối T3',
+        name: `${item.name} (Đã đổi 600g thăn bò ➔ 600g ức vịt/cá thu, tiết kiệm ${formatVND(60000 * factor)})`,
+        baseTotalPrice: item.baseTotalPrice - 60000,
       };
     }
     return item;
@@ -105,35 +131,88 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
     return matchesCategory && matchesPhase;
   });
 
-  const totalPlannedCost = effectiveItems.reduce((acc, it) => acc + it.baseTotalPrice * factor, 0);
+  const upgradeAddonCost =
+    ((upgradeMondaySalmon ? 250000 : 0) + (upgradeFridayBeef ? 280000 : 0)) * factor;
+
+  const totalPlannedCost =
+    effectiveItems.reduce((acc, it) => acc + it.baseTotalPrice * factor, 0) + upgradeAddonCost;
+
   const totalSpent = effectiveItems.reduce((acc, it) => {
     return checkedMap[it.id] ? acc + it.baseTotalPrice * factor : acc;
   }, 0);
   const remainingInPlan = Math.max(0, totalPlannedCost - totalSpent);
-  const percentDone = Math.round((totalSpent / totalPlannedCost) * 100);
+  const percentDone = totalPlannedCost > 0 ? Math.round((totalSpent / totalPlannedCost) * 100) : 0;
 
-  const categories = ['all', 'Đạm', 'Tinh bột', 'Rau củ', 'Trái cây', 'Sữa & lạc', 'Gia vị'];
+  const categories = ['all', 'Đạm', 'Tinh bột', 'Rau củ', 'Trái cây'];
+
+  // 4-Tier Comparison Rows from Slide 04
+  const slide04ComparisonRows = [
+    {
+      group: '1. Đạm thịt & gia cầm (1,9 kg)',
+      desc: 'Đùi gà/heo (M1) • Gà ta/bò Việt (M2) • Bò Úc/vịt/gà hữu cơ (M3–4)',
+      m1: 195000,
+      m2: 380000,
+      m3: 680000,
+      m4: 980000,
+    },
+    {
+      group: '2. Đạm cá & hải sản (1,6 kg)',
+      desc: 'Cá nục/tôm nhỏ (M1) • Cá chẽm/tôm (M2) • Cá hồi/tuyết/tôm sú/sò điệp (M3–4)',
+      m1: 145000,
+      m2: 380000,
+      m3: 740000,
+      m4: 1120000,
+    },
+    {
+      group: '3. Đậu hũ & Trứng (1,6 kg + 20 quả)',
+      desc: 'Đậu trắng/trứng thường (M1–2) • Đậu hữu cơ/trứng gà ta/Omega-3 (M3–4)',
+      m1: 110000,
+      m2: 180000,
+      m3: 280000,
+      m4: 380000,
+    },
+    {
+      group: '4. Tinh bột phức hợp (4,9 kg)',
+      desc: '2,4kg gạo lứt/Quinoa + 0,5kg yến mạch + 2,0kg khoai lang mật/Nhật & bắp',
+      m1: 135000,
+      m2: 210000,
+      m3: 320000,
+      m4: 440000,
+    },
+    {
+      group: '5. Rau củ, Nấm & Bơ (6,0 kg)',
+      desc: 'Cải, muống, bầu, cô ve, bí đỏ (M1) • Bông cải, măng tây, nấm đông cô, bơ (M2–4)',
+      m1: 150000,
+      m2: 260000,
+      m3: 450000,
+      m4: 650000,
+    },
+    {
+      group: '6. Trái cây, Sữa, Hạt & Dầu (2,8 kg + 1L + 250g)',
+      desc: 'Lạc/điều/óc chó/mắc ca + sữa tươi/Hy Lạp/sữa hạt + dầu cải/ô liu EVOO',
+      m1: 175000,
+      m2: 410000,
+      m3: 710000,
+      m4: 980000,
+    },
+  ];
 
   return (
-    <motion.section
+    <section
       id="grocery"
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       className="space-y-8"
     >
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-stone-200 pb-5">
         <div>
           <div className="text-emerald-800 text-xs font-semibold tracking-wider mb-1.5">
-            02. Quản Lý Đi Chợ & Ngân Sách · Nguồn từ Slide 03
+            02. Quản Lý Đi Chợ & Phân Bổ Ngân Sách 1–5 Triệu · Nguồn từ Slide 01 & Slide 04
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1B4332] font-serif text-balance">
-            Danh Sách Đi Chợ & Phân Bổ Ngân Sách <span className="tabular-nums">{formatVND(totalPlannedCost)}</span>
+            Danh Sách Đi Chợ ({tierMeta.shortLabel}) · Dự Toán <span className="tabular-nums text-amber-700">{formatVND(totalPlannedCost)}</span>
           </h2>
           <p className="text-stone-600 text-sm mt-1 tabular-nums">
-            Nhóm Đạm chiếm 47,8% chi phí; giữ lại {formatVND(115000 * factor)} dự phòng trượt giá hoặc tăng khẩu phần cho người tập luyện.
+            Giữ nguyên định lượng chuẩn ({(13.7 * factor).toFixed(1)} kg thực phẩm tươi/tuần cho {portion} người); tỷ trọng nhóm Đạm luôn chiếm 45–50% dự toán ở mọi phân khúc.
           </p>
         </div>
 
@@ -153,17 +232,11 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
       </div>
 
       {/* Progress & Live Spent Gauge */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.45 }}
-        className="bg-white rounded-2xl border border-stone-200 p-5 space-y-4"
-      >
+      <div className="bg-white rounded-2xl border border-stone-200 p-5 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <div className="text-xs font-semibold text-stone-500">
-              Tiến độ mua sắm giỏ hàng tuần
+              Tiến độ mua sắm giỏ hàng tuần ({tierMeta.name})
             </div>
             <div className="text-xl sm:text-2xl font-bold text-stone-900 mt-0.5 tabular-nums">
               Đã nhặt: <span className="text-emerald-700">{formatVND(totalSpent)}</span>{' '}
@@ -204,14 +277,33 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
 
         <div className="flex flex-wrap items-center justify-between text-xs text-stone-500 pt-1 tabular-nums">
           <span>Còn lại cần chi: <strong>{formatVND(remainingInPlan)}</strong></span>
-          <span>Quỹ dự phòng an toàn: <strong className="text-emerald-700">{formatVND(115000 * factor)}</strong> (11,5% ngân sách trần)</span>
+          <span>Quỹ dự phòng an toàn: <strong className="text-emerald-700">{formatVND(tierMeta.contingencyFund * factor)}</strong> ({tierMeta.contingencyPercent} ngân sách trần)</span>
         </div>
-      </motion.div>
+      </div>
 
-      {/* Main Grid: Left = Shopping Table, Right = Budget Distribution & Price Strategy */}
+      {/* Main Grid: Left = Shopping Table + Odd Budget Customizer, Right = Budget Breakdown & Swap */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column (7 cols): Interactive Checklist */}
-        <div className="lg:col-span-7 space-y-4">
+        {/* Left Column (7 cols): Interactive Checklist & Odd Budget Customizer */}
+        <div className="lg:col-span-7 space-y-5">
+          {/* Quick Tier Pills inside Grocery Section */}
+          <div className="flex flex-wrap items-center gap-1.5 p-2 bg-emerald-950/5 rounded-xl border border-emerald-900/15">
+            <span className="text-xs font-bold text-[#1B4332] px-2">Đổi nhanh mức ngân sách:</span>
+            {(['885k', '1m', '2m', '3.5m', '5m'] as BudgetTierId[]).map((tId) => (
+              <button
+                key={tId}
+                type="button"
+                onClick={() => onBudgetTierChange(tId)}
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  budgetTier === tId
+                    ? 'bg-[#1B4332] text-amber-300 shadow-sm'
+                    : 'bg-white text-stone-700 hover:bg-stone-100 border border-stone-200'
+                }`}
+              >
+                {BUDGET_TIERS_METADATA[tId].shortLabel}
+              </button>
+            ))}
+          </div>
+
           {/* Filters Bar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-2.5 bg-stone-100 rounded-xl border border-stone-200">
             <div className="flex flex-wrap gap-1.5">
@@ -358,45 +450,98 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
               </div>
             )}
           </div>
+
+          {/* Odd Budget Customizer (1,5 Triệu • 2,5 Triệu • 4,0 Triệu/tuần) from Slide 04 */}
+          <div className="bg-emerald-50/70 rounded-2xl border border-emerald-200 p-4 sm:p-5 space-y-3">
+            <div className="flex items-start gap-2.5">
+              <Sliders className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-bold text-emerald-950 text-sm sm:text-base">
+                  Tùy Biến Ngân Sách Lẻ (1,5 Triệu • 2,5 Triệu • 4,0 Triệu/tuần · Slide 04)
+                </h3>
+                <p className="text-xs text-stone-600 mt-0.5 leading-relaxed">
+                  Để thiết lập mức ngân sách nằm giữa các mốc chuẩn, giữ nguyên khung đi chợ hiện tại rồi nâng cấp 1 hoặc 2 bữa tối chủ lực (Thứ Hai & Thứ Sáu) sang Cá hồi phi lê hoặc Thăn bò Úc:
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+              <button
+                type="button"
+                onClick={() => setUpgradeMondaySalmon(!upgradeMondaySalmon)}
+                className={`p-3 rounded-xl border text-left text-xs transition-all cursor-pointer flex items-start gap-2.5 ${
+                  upgradeMondaySalmon
+                    ? 'bg-[#1B4332] text-white border-[#1B4332] shadow'
+                    : 'bg-white text-stone-800 border-stone-200 hover:border-emerald-400'
+                }`}
+              >
+                <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${upgradeMondaySalmon ? 'text-amber-400' : 'text-stone-300'}`} />
+                <div>
+                  <div className="font-bold">Nâng cấp Tối Thứ Hai ➔ Cá hồi phi lê</div>
+                  <div className={`text-[11px] mt-0.5 tabular-nums ${upgradeMondaySalmon ? 'text-emerald-200' : 'text-stone-500'}`}>
+                    +{formatVND(250000 * factor)} / {Math.round(500 * factor)}g cá hồi
+                  </div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setUpgradeFridayBeef(!upgradeFridayBeef)}
+                className={`p-3 rounded-xl border text-left text-xs transition-all cursor-pointer flex items-start gap-2.5 ${
+                  upgradeFridayBeef
+                    ? 'bg-[#1B4332] text-white border-[#1B4332] shadow'
+                    : 'bg-white text-stone-800 border-stone-200 hover:border-emerald-400'
+                }`}
+              >
+                <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${upgradeFridayBeef ? 'text-amber-400' : 'text-stone-300'}`} />
+                <div>
+                  <div className="font-bold">Nâng cấp Tối Thứ Sáu ➔ Thăn bò Úc</div>
+                  <div className={`text-[11px] mt-0.5 tabular-nums ${upgradeFridayBeef ? 'text-emerald-200' : 'text-stone-500'}`}>
+                    +{formatVND(280000 * factor)} / {Math.round(600 * factor)}g bò Úc
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            {(upgradeMondaySalmon || upgradeFridayBeef) && (
+              <div className="text-xs font-semibold text-emerald-900 bg-white p-2.5 rounded-xl border border-emerald-200 flex items-center justify-between tabular-nums">
+                <span>Tổng dự toán sau nâng cấp bữa chủ lực:</span>
+                <span className="text-sm font-extrabold text-amber-700">{formatVND(totalPlannedCost)}</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Column (5 cols): Budget Structure & Price Fluctuation Strategy */}
         <div className="lg:col-span-5 space-y-6">
           {/* Budget Structure Breakdown */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="bg-white rounded-2xl border border-stone-200 p-5 space-y-4"
-          >
+          <div className="bg-white rounded-2xl border border-stone-200 p-5 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-stone-900 text-base font-serif flex items-center gap-2">
                 <PiggyBank className="w-4 h-4 text-emerald-700" />
-                <span>Cơ Cấu Ngân Sách Tuần (Trần {formatVND(1000000 * factor)})</span>
+                <span>Cơ Cấu Ngân Sách ({tierMeta.shortLabel} · Trần {formatVND(tierMeta.ceilingBudget * factor)})</span>
               </h3>
-              <span className="text-xs text-stone-500 font-medium">Slide 03</span>
+              <span className="text-xs text-stone-500 font-medium">Slide 04</span>
             </div>
 
             <div className="space-y-3">
-              {BUDGET_BREAKDOWN.map((group, idx) => {
+              {breakdownGroups.map((group) => {
                 const scaledAmount = group.amount * factor;
                 return (
                   <div key={group.name} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs font-medium tabular-nums">
-                      <span className="text-stone-700">{group.name}</span>
-                      <span className="font-bold text-stone-900">
+                    <div className="flex items-center justify-between text-xs font-medium tabular-nums gap-2">
+                      <span className="text-stone-700 truncate">{group.name}</span>
+                      <span className="font-bold text-stone-900 shrink-0">
                         {formatVND(scaledAmount)} ({group.percentage}%)
                       </span>
                     </div>
                     <div className="w-full bg-stone-100 rounded-full h-2.5 overflow-hidden">
-                      <motion.div
-                        initial={{ scaleX: 0 }}
-                        whileInView={{ scaleX: group.ceilingPercent / 100 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.65, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-                        className="h-full w-full rounded-full origin-left"
-                        style={{ backgroundColor: group.color }}
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${group.ceilingPercent}%`,
+                          backgroundColor: group.color,
+                        }}
                       />
                     </div>
                   </div>
@@ -407,52 +552,40 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
               <div className="space-y-1 pt-2 border-t border-stone-100">
                 <div className="flex items-center justify-between text-xs font-medium text-emerald-800 tabular-nums">
                   <span className="font-semibold">Quỹ dự phòng an toàn</span>
-                  <span className="font-bold">{formatVND(115000 * factor)} (11,5% trần)</span>
+                  <span className="font-bold">{formatVND(tierMeta.contingencyFund * factor)} ({tierMeta.contingencyPercent} trần)</span>
                 </div>
                 <div className="w-full bg-stone-100 rounded-full h-2.5 overflow-hidden">
-                  <motion.div
-                    initial={{ scaleX: 0 }}
-                    whileInView={{ scaleX: 0.115 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.65, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                    className="h-full w-full rounded-full bg-emerald-500 origin-left"
-                  />
+                  <div className="h-full w-[10%] rounded-full bg-emerald-500" />
                 </div>
               </div>
             </div>
 
             <div className="pt-2 text-[11px] text-stone-500 italic">
-              * Dự toán giá chợ dân sinh lập ngày 30/09/2026 (chưa gồm điện, gas, nước sinh hoạt).
+              * Nguyên tắc “Bất biến Dinh dưỡng – Linh hoạt Nguyên liệu”: Dù ở mức 1 triệu hay 5 triệu, mỗi người đều nhận đủ 1,4–1,6g Protein/kg cân nặng/ngày (~58–65g đạm nguyên chất/người/ngày).
             </div>
-          </motion.div>
+          </div>
 
           {/* Strategy for Market Price Fluctuation */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="bg-amber-50/70 rounded-2xl border border-amber-300/80 p-5 space-y-4"
-          >
+          <div className="bg-amber-50/70 rounded-2xl border border-amber-300/80 p-5 space-y-4">
             <div className="flex items-start gap-2 text-amber-900 font-bold text-base">
               <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
               <div>
-                <h4>Chiến Lược Ứng Phó Khi Giá Chợ Biến Động</h4>
+                <h4>Nguyên Tắc Hoán Đổi Đồng Giá Khi Chợ Biến Động</h4>
                 <p className="text-xs font-normal text-amber-800 mt-0.5">
-                  Bảo vệ ngân sách gia đình không bị thâm hụt khi giá thực phẩm ngoài chợ tăng.
+                  Bảo vệ ngân sách gia đình không bị thâm hụt mà vẫn giữ nguyên hàm lượng đạm chuẩn.
                 </p>
               </div>
             </div>
 
             <ul className="text-xs text-stone-700 space-y-2 list-disc list-inside tabular-nums">
               <li>
-                <strong>Ưu tiên quỹ dự phòng {formatVND(115000 * factor)}:</strong> Hấp thụ các đợt tăng giá nhẹ trước khi điều chỉnh thực đơn.
+                <strong>Quỹ dự phòng {formatVND(tierMeta.contingencyFund * factor)}:</strong> Hấp thụ 9–11,5% biến động giá thời tiết hoặc tăng khẩu phần.
               </li>
               <li>
-                <strong>Hoán đổi linh hoạt cùng định lượng:</strong> Đổi sang các loại rau theo mùa đồng giá tại chợ dân sinh.
+                <strong>Ở Mức 1 (Chợ dân sinh):</strong> Hoán đổi 600g nạc heo sang 600g ức gà/má đùi gà giúp tiết kiệm ngay <strong>{formatVND(36000 * factor)}</strong>.
               </li>
-              <li className="text-amber-950 font-semibold">
-                <strong>Nguyên tắc bất di bất dịch:</strong> Tuyệt đối không cắt số bữa hoặc bỏ nguồn đạm để ép ngân sách!
+              <li>
+                <strong>Ở Mức 2–4 (Siêu thị/Nâng cao):</strong> Thay 600g thăn bò Việt ({formatVND(180000 * factor)}) bằng 600g ức vịt phi lê hoặc cá thu ({formatVND(120000 * factor)}) để tiết kiệm ngay <strong>{formatVND(60000 * factor)}</strong>.
               </li>
             </ul>
 
@@ -460,45 +593,131 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
             <div className="bg-white rounded-xl p-4 border border-amber-200 space-y-3">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-stone-900 flex items-center gap-1.5">
-                  <ArrowRightLeft className="w-4 h-4 text-emerald-600" />
-                  <span>Mô phỏng hoán đổi nạc heo ➔ ức gà</span>
+                  <ArrowRightLeft className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{isLowTier ? 'Mô phỏng đổi Heo ➔ Gà' : 'Mô phỏng đổi Thăn bò ➔ Ức vịt/Cá thu'}</span>
                 </span>
-                <span className="text-emerald-800 font-bold tabular-nums">
-                  Tiết kiệm {formatVND(36000 * factor)}
+                <span className="text-emerald-800 font-bold tabular-nums shrink-0">
+                  Tiết kiệm {formatVND(swapSavingBase * factor)}
                 </span>
               </div>
-
-              <p className="text-xs text-stone-600">
-                Nếu thịt nạc vai ngoài chợ lên giá, bấm nút dưới để tự động chuyển 600g nạc heo sang 600g ức gà:
-              </p>
 
               <motion.button
                 type="button"
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setIsPorkSwappedToChicken(!isPorkSwappedToChicken)}
-                className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
-                  isPorkSwappedToChicken
+                onClick={() => setIsSmartSwapped(!isSmartSwapped)}
+                className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer text-center leading-snug ${
+                  isSmartSwapped
                     ? 'bg-emerald-700 text-white hover:bg-emerald-800 shadow'
                     : 'bg-amber-100 text-amber-900 hover:bg-amber-200 border border-amber-300'
                 }`}
               >
-                {isPorkSwappedToChicken ? (
+                {isSmartSwapped ? (
                   <>
                     <Check className="w-4 h-4 text-emerald-200 shrink-0" />
-                    <span>Đang kích hoạt hoán đổi (Đã tiết kiệm {formatVND(36000 * factor)}) · Bấm để hủy</span>
+                    <span>Đang kích hoạt hoán đổi (Tiết kiệm {formatVND(swapSavingBase * factor)}) · Bấm để hủy</span>
                   </>
                 ) : (
                   <>
                     <ArrowRightLeft className="w-4 h-4 text-amber-700 shrink-0" />
-                    <span>Áp dụng hoán đổi 600g Heo (90k) ➔ 600g Ức gà (54k)</span>
+                    <span>
+                      {isLowTier
+                        ? `Áp dụng đổi 600g Heo ➔ 600g Gà (-${formatVND(36000 * factor)})`
+                        : `Áp dụng đổi 600g Bò ➔ 600g Ức vịt/Cá thu (-${formatVND(60000 * factor)})`}
+                    </span>
                   </>
                 )}
               </motion.button>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
-    </motion.section>
+
+      {/* Full 4-Tier Comparison Table by 6 Food Groups from Slide 04 */}
+      <div className="bg-white rounded-2xl border border-stone-200 p-4 sm:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-3">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-[#1B4332] shrink-0" />
+            <h3 className="font-bold text-stone-900 text-sm sm:text-lg font-serif">
+              Bảng Đối Chiếu Chi Phí 6 Nhóm Thực Phẩm Từ 1–5 Triệu Đồng (Slide 04 · {portion} người)
+            </h3>
+          </div>
+          <span className="text-xs text-stone-500">Bấm vào cột mức giá để chuyển nhanh</span>
+        </div>
+
+        <div className="overflow-x-auto -mx-2 px-2">
+          <table className="w-full min-w-[640px] text-left text-xs sm:text-sm border-collapse">
+            <thead>
+              <tr className="bg-[#FAF8F5] border-b border-stone-200 text-stone-700">
+                <th className="p-3 font-bold w-[42%] min-w-[240px]">Nhóm thực phẩm & Định lượng cố định</th>
+                <th
+                  onClick={() => onBudgetTierChange('1m')}
+                  className={`p-3 text-right cursor-pointer transition-colors ${budgetTier === '1m' ? 'bg-amber-100 text-amber-950 font-extrabold' : 'hover:bg-stone-100'}`}
+                >
+                  Mức 1 (1,0Tr)
+                </th>
+                <th
+                  onClick={() => onBudgetTierChange('2m')}
+                  className={`p-3 text-right cursor-pointer transition-colors ${budgetTier === '2m' ? 'bg-amber-100 text-amber-950 font-extrabold' : 'hover:bg-stone-100'}`}
+                >
+                  Mức 2 (2,0Tr)
+                </th>
+                <th
+                  onClick={() => onBudgetTierChange('3.5m')}
+                  className={`p-3 text-right cursor-pointer transition-colors ${budgetTier === '3.5m' ? 'bg-amber-100 text-amber-950 font-extrabold' : 'hover:bg-stone-100'}`}
+                >
+                  Mức 3 (3,5Tr)
+                </th>
+                <th
+                  onClick={() => onBudgetTierChange('5m')}
+                  className={`p-3 text-right cursor-pointer transition-colors ${budgetTier === '5m' ? 'bg-amber-100 text-amber-950 font-extrabold' : 'hover:bg-stone-100'}`}
+                >
+                  Mức 4 (5,0Tr)
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100 tabular-nums">
+              {slide04ComparisonRows.map((row) => (
+                <tr key={row.group} className="hover:bg-stone-50">
+                  <td className="p-3">
+                    <div className="font-bold text-stone-900">{row.group}</div>
+                    <div className="text-xs text-stone-500 mt-0.5">{row.desc}</div>
+                  </td>
+                  <td className={`p-3 text-right font-semibold whitespace-nowrap ${budgetTier === '1m' ? 'bg-amber-50/70 text-amber-950 font-bold' : 'text-stone-700'}`}>
+                    {formatVND(row.m1 * factor)}
+                  </td>
+                  <td className={`p-3 text-right font-semibold whitespace-nowrap ${budgetTier === '2m' ? 'bg-amber-50/70 text-amber-950 font-bold' : 'text-stone-700'}`}>
+                    {formatVND(row.m2 * factor)}
+                  </td>
+                  <td className={`p-3 text-right font-semibold whitespace-nowrap ${budgetTier === '3.5m' ? 'bg-amber-50/70 text-amber-950 font-bold' : 'text-stone-700'}`}>
+                    {formatVND(row.m3 * factor)}
+                  </td>
+                  <td className={`p-3 text-right font-semibold whitespace-nowrap ${budgetTier === '5m' ? 'bg-amber-50/70 text-amber-950 font-bold' : 'text-stone-700'}`}>
+                    {formatVND(row.m4 * factor)}
+                  </td>
+                </tr>
+              ))}
+              <tr className="bg-emerald-50/70 font-bold text-emerald-950 border-t-2 border-emerald-200">
+                <td className="p-3">
+                  7. Tổng dự toán + Quỹ dự phòng (9–10%) = Ngân sách trần
+                </td>
+                <td className="p-3 text-right whitespace-nowrap">
+                  {formatVND(910000 * factor)} + {formatVND(90000 * factor)} = {formatVND(1000000 * factor)}
+                </td>
+                <td className="p-3 text-right whitespace-nowrap">
+                  {formatVND(1820000 * factor)} + {formatVND(180000 * factor)} = {formatVND(2000000 * factor)}
+                </td>
+                <td className="p-3 text-right whitespace-nowrap">
+                  {formatVND(3180000 * factor)} + {formatVND(320000 * factor)} = {formatVND(3500000 * factor)}
+                </td>
+                <td className="p-3 text-right whitespace-nowrap">
+                  {formatVND(4550000 * factor)} + {formatVND(450000 * factor)} = {formatVND(5000000 * factor)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   );
 };

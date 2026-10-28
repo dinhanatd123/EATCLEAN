@@ -8,13 +8,23 @@ import {
   Circle,
   Lightbulb,
   Bell,
+  PackageCheck,
 } from 'lucide-react';
-import { PREP_TIMELINE_STEPS } from '../data/eatCleanData';
+import { BudgetTierId } from '../types';
+import { getTimelineForTier, BUDGET_TIERS_METADATA } from '../data/flexibleEatCleanData';
 import { playChimeSound } from '../utils/audio';
 
-const STORAGE_KEY_TIMELINE_CHECKS = 'eatclean_prep_checks_v1';
+interface PrepTimelineProps {
+  budgetTier: BudgetTierId;
+}
 
-export const PrepTimeline: React.FC = () => {
+const STORAGE_KEY_TIMELINE_CHECKS = 'eatclean_prep_checks_v2';
+
+export const PrepTimeline: React.FC<PrepTimelineProps> = ({ budgetTier }) => {
+  const steps = getTimelineForTier(budgetTier);
+  const tierMeta = BUDGET_TIERS_METADATA[budgetTier];
+  const isOriginal = budgetTier === '885k';
+
   const [completedSteps, setCompletedSteps] = useState<Record<string, boolean>>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_TIMELINE_CHECKS);
@@ -73,28 +83,24 @@ export const PrepTimeline: React.FC = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const completedCount = PREP_TIMELINE_STEPS.filter((s) => completedSteps[s.id]).length;
+  const completedCount = steps.filter((s) => completedSteps[s.id]).length;
 
   return (
-    <motion.section
+    <section
       id="prep"
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       className="space-y-8"
     >
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-stone-200 pb-5">
         <div>
           <div className="text-emerald-800 text-xs font-semibold tracking-wider mb-1.5">
-            03. Dây Chuyền Sơ Chế · Nguồn từ Slide 04
+            03. Dây Chuyền Sơ Chế ({tierMeta.shortLabel}) · Nguồn từ Slide 05
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1B4332] font-serif text-balance">
-            Quy Trình Sơ Chế 90 Phút Chủ Nhật & Nhịp Nấu 20–30 Phút Mỗi Tối
+            Quy Trình Sơ Chế 90 Phút Ngày Chủ Nhật & Nhịp Nấu 20–30 Phút Mỗi Tối
           </h2>
           <p className="text-stone-600 text-sm mt-1">
-            Tổ chức dây chuyền sơ chế khoa học giúp rút ngắn thời gian đứng bếp mỗi tối trong tuần xuống dưới 30 phút.
+            Chuẩn hóa khâu chia khẩu phần và bảo quản lạnh cho cả nguyên liệu chợ dân sinh (Mức 1–2) lẫn hải sản/bò nhập khẩu (Mức 3–4).
           </p>
         </div>
 
@@ -140,9 +146,9 @@ export const PrepTimeline: React.FC = () => {
         <div className="lg:col-span-8 space-y-4">
           <div className="flex items-center justify-between px-1 tabular-nums">
             <span className="text-xs font-semibold text-stone-500">
-              Dây chuyền sơ chế ({completedCount}/{PREP_TIMELINE_STEPS.length} chặng hoàn thành)
+              Dây chuyền sơ chế ({completedCount}/{steps.length} chặng hoàn thành)
             </span>
-            {completedCount === PREP_TIMELINE_STEPS.length && (
+            {completedCount === steps.length && (
               <span className="text-xs text-emerald-700 font-bold">
                 Đã hoàn thành 100% sơ chế
               </span>
@@ -150,7 +156,7 @@ export const PrepTimeline: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            {PREP_TIMELINE_STEPS.map((step, idx) => {
+            {steps.map((step, idx) => {
               const isDone = !!completedSteps[step.id];
 
               return (
@@ -162,13 +168,13 @@ export const PrepTimeline: React.FC = () => {
                   viewport={{ once: true, margin: '-30px' }}
                   transition={{ duration: 0.4, delay: idx * 0.06, ease: [0.16, 1, 0.3, 1] }}
                   onClick={() => toggleStep(step.id)}
-                  className={`rounded-2xl border transition-colors p-5 cursor-pointer relative overflow-hidden ${
+                  className={`rounded-2xl border transition-colors p-4 sm:p-5 cursor-pointer relative overflow-hidden ${
                     isDone
                       ? 'bg-emerald-50/50 border-emerald-300'
                       : 'bg-white border-stone-200 hover:border-emerald-500'
                   }`}
                 >
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-3.5 sm:gap-4">
                     <button
                       type="button"
                       aria-label={`Hoàn thành bước ${step.title}`}
@@ -227,6 +233,19 @@ export const PrepTimeline: React.FC = () => {
               );
             })}
           </div>
+
+          {/* Recommended Storage Containers Box from Slide 05 */}
+          <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 sm:p-5 flex items-start gap-3">
+            <PackageCheck className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+            <div className="text-xs sm:text-sm text-stone-700 space-y-1 tabular-nums">
+              <strong className="text-amber-950 font-bold block">
+                Danh mục hộp bảo quản & dụng cụ bếp khuyến nghị (Slide 05):
+              </strong>
+              <p>
+                Sử dụng <strong>4 hộp thủy tinh chữ nhật 800ml chia ngăn</strong> cho bữa trưa văn phòng (chịu nhiệt lò vi sóng tới 400°C), <strong>6 hộp nhựa PP/thủy tinh 1.000ml</strong> trữ đông đạm theo ngày, và <strong>1 nhiệt kế thăm tâm thịt điện tử</strong> để kiểm tra độ chín chuẩn xác (<strong>63°C cho bò/cá hồi, 74°C cho gà/vịt</strong>).
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Right Column (4 cols): Vegetable Freshness & Visual Prep Box */}
@@ -241,23 +260,23 @@ export const PrepTimeline: React.FC = () => {
           >
             <div className="aspect-video w-full bg-stone-100 relative overflow-hidden">
               <img
-                src="./assets/dishes/pdf_img_2.jpg"
+                src={isOriginal ? './assets/dishes/pdf_img_2.jpg' : './assets/dishes_flex/flex_img_1.jpg'}
                 alt="Meal Prep Chủ Nhật"
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end p-4">
                 <span className="text-xs text-white font-medium">
-                  Khay sơ chế thủy tinh có nắp gioăng & chia ngăn khoa học
+                  Chia sẵn cá hồi, thăn bò, ức gà, tôm bóc nõn, bông cải xanh, măng tây & các hũ hạt
                 </span>
               </div>
             </div>
             <div className="p-4 text-xs text-stone-600 leading-relaxed tabular-nums">
-              Chia sẵn ức gà theo mẻ (300g / 600g / 600g), rang 200g lạc cất hũ kín và cân sẵn yến mạch 160g/160g/180g giúp tiết kiệm tối đa thời gian buổi sáng và buổi tối trong tuần.
+              Chia sẵn cá hồi, thăn bò, ức gà, tôm bóc nõn, bông cải xanh, măng tây, khoai lang và các hũ hạt dinh dưỡng (óc chó, mắc ca, hạnh nhân, điều, lạc) trong 90 phút chiều Chủ Nhật.
             </div>
           </motion.div>
 
-          {/* Quality Control Box from Slide 04 */}
+          {/* Quality Control Box from Slide 05 */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -266,28 +285,37 @@ export const PrepTimeline: React.FC = () => {
             className="bg-emerald-50/70 rounded-2xl border border-emerald-200 p-5 space-y-3"
           >
             <div className="text-emerald-950 font-bold text-base">
-              <h4>Mẹo Kiểm Soát Chất Lượng Rau Củ</h4>
+              <h4>Mẹo Kiểm Soát Độ Tươi Ngon Nguyên Liệu Cả Tuần</h4>
               <p className="text-xs font-normal text-emerald-800 mt-0.5">
-                Slide 04: Thứ tự ưu tiên dùng rau giữ độ ngọt và dinh dưỡng tối đa
+                Slide 05: Thứ tự ưu tiên dùng rau, rã đông chậm & bảo quản hạt/bơ
               </p>
             </div>
 
             <div className="space-y-2 text-xs text-stone-700">
               <div className="p-3 rounded-xl bg-white border border-emerald-100 space-y-1">
                 <div className="font-bold text-emerald-900">
-                  1. Đầu tuần: Ăn ngay rau lá
+                  1. Thứ tự ưu tiên dùng rau củ
                 </div>
                 <p className="text-stone-600">
-                  Dùng <strong>rau cải (Thứ 2, Thứ 5, CN)</strong> và <strong>rau muống (Thứ 4)</strong> ngay khi còn tươi để đảm bảo lượng vitamin C và diệp lục cao nhất.
+                  Dùng <strong>măng tây, cải thìa, cải bó xôi, cải kale, rau muống</strong> trong 3 ngày đầu tuần (Thứ 2–Thứ 4); giữ <strong>bông cải xanh, đậu cô ve, cải thảo, bắp cải và bí đỏ</strong> cho nửa cuối tuần (Thứ 5–Chủ Nhật).
                 </p>
               </div>
 
               <div className="p-3 rounded-xl bg-white border border-emerald-100 space-y-1">
                 <div className="font-bold text-amber-900">
-                  2. Cuối tuần: Củ quả nguyên miếng
+                  2. Rã đông hải sản & bò bít tết
                 </div>
                 <p className="text-stone-600">
-                  Giữ <strong>bắp cải (Thứ 3, Thứ 7)</strong>, <strong>bí đỏ (Thứ 2, Thứ 6)</strong> và <strong>cà rốt (Thứ 6, Thứ 7, CN)</strong> cho nửa cuối tuần vì củ quả nguyên miếng giữ độ ngọt lâu hơn gấp <strong>2–3 lần</strong> so với rau lá.
+                  Luôn rã đông chậm trong ngăn mát (<strong>2–4°C</strong>) từ tối hôm trước để giữ nguyên cấu trúc thớ thịt; tuyệt đối không ngâm nước ấm làm thất thoát dịch ngọt tự nhiên.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl bg-white border border-emerald-100 space-y-1">
+                <div className="font-bold text-stone-900">
+                  3. Bảo quản các loại hạt & bơ chín
+                </div>
+                <p className="text-stone-600">
+                  Hạt óc chó, mắc ca, hạnh nhân bảo quản trong hũ thủy tinh kín ở ngăn mát để tránh ôi dầu; <strong>bơ sáp/bơ Booth</strong> vừa chín tới cất ngay vào ngăn mát giữ dẻo béo suốt 5 ngày.
                 </p>
               </div>
             </div>
@@ -298,6 +326,6 @@ export const PrepTimeline: React.FC = () => {
           </motion.div>
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 };

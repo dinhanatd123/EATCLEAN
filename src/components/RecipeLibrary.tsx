@@ -9,13 +9,15 @@ import {
   Info,
   Flame,
   RotateCcw,
+  Sparkles,
 } from 'lucide-react';
-import { Recipe, PortionSize } from '../types';
-import { RECIPES_DATA } from '../data/eatCleanData';
+import { Recipe, PortionSize, BudgetTierId } from '../types';
+import { getRecipesForTier, BUDGET_TIERS_METADATA } from '../data/flexibleEatCleanData';
 import { scaleTextNumbers, calculateScaleFactor } from '../utils/calculator';
 
 interface RecipeLibraryProps {
   portion: PortionSize;
+  budgetTier: BudgetTierId;
   onOpenCookingMode: (recipe: Recipe) => void;
 }
 
@@ -23,11 +25,15 @@ const STORAGE_KEY_CUSTOM_IMAGES = 'eatclean_recipe_custom_images_v1';
 
 export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
   portion,
+  budgetTier,
   onOpenCookingMode,
 }) => {
   const factor = calculateScaleFactor(portion);
+  const tierMeta = BUDGET_TIERS_METADATA[budgetTier];
+  const recipesList = getRecipesForTier(budgetTier);
+
   const [activeTab, setActiveTab] = useState<'breakfast' | 'chicken' | 'steamed' | 'tofu_egg'>('breakfast');
-  const [expandedRecipeId, setExpandedRecipeId] = useState<string | null>('recipe-chicken-panseared-pumpkin');
+  const [expandedRecipeId, setExpandedRecipeId] = useState<string | null>(null);
 
   const [customImages, setCustomImages] = useState<Record<string, string>>(() => {
     try {
@@ -85,28 +91,24 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
     setActiveUploadModalRecipeId(null);
   };
 
-  const filteredRecipes = RECIPES_DATA.filter((r) => r.category === activeTab);
+  const filteredRecipes = recipesList.filter((r) => r.category === activeTab);
 
   return (
-    <motion.section
+    <section
       id="recipes"
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       className="space-y-8"
     >
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-stone-200 pb-5">
         <div>
           <div className="text-emerald-800 text-xs font-semibold tracking-wider mb-1.5">
-            04. Thư Viện Công Thức · Nguồn từ Slide 05, 06, 07, 08
+            04. Thư Viện Công Thức ({tierMeta.shortLabel}) · Nguồn từ Slide 06, 07, 08
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1B4332] font-serif text-balance">
-            Thư Viện 11 Công Thức Chế Biến Có Hình Ảnh Minh Họa
+            Thư Viện Công Thức Chế Biến Chuẩn Nhiệt Độ Tâm (Gà 74°C • Bò & Cá Hồi 63°C)
           </h2>
           <p className="text-stone-600 text-sm mt-1">
-            Định lượng tự động đồng bộ theo {portion} người lớn. Tích hợp Chế Độ Đứng Bếp (Cooking Mode) với bộ bấm giờ nấu ăn.
+            Định lượng tự động đồng bộ theo {portion} người lớn ({tierMeta.name}). Tích hợp Chế Độ Đứng Bếp (Cooking Mode) rảnh tay.
           </p>
         </div>
       </div>
@@ -122,7 +124,7 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
               : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/80'
           }`}
         >
-          Bữa Sáng 5–25p (3 món)
+          Bữa Sáng Đa Ngũ Cốc 5–25p
         </button>
 
         <button
@@ -134,7 +136,7 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
               : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/80'
           }`}
         >
-          Ức Gà Tâm 74°C (3 món)
+          Áp Chảo Gà, Bò & Cá Hồi (74°C/63°C)
         </button>
 
         <button
@@ -146,7 +148,7 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
               : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/80'
           }`}
         >
-          Món Hấp Thanh Đạm (2 món)
+          Hải Sản Hấp (Tôm, Sò Điệp, Cá)
         </button>
 
         <button
@@ -158,11 +160,11 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
               : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/80'
           }`}
         >
-          Đậu Hũ – Trứng (3 món)
+          Đậu Hũ Nấm – Trứng – Hải Sản
         </button>
       </div>
 
-      {/* Special Category Highlight Notice */}
+      {/* Special Category Highlight Notice from Slide 06, 07, 08 */}
       <AnimatePresence mode="wait">
         {activeTab === 'breakfast' && (
           <motion.div
@@ -175,12 +177,12 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
           >
             <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
             <div className="text-xs sm:text-sm text-stone-700 space-y-1 tabular-nums">
-              <strong className="text-amber-950 font-bold block">Điểm chung giúp bữa sáng chỉ mất 5–10 phút (Slide 05):</strong>
+              <strong className="text-amber-950 font-bold block">Bí quyết rút ngắn bữa sáng xuống dưới 10 phút (Slide 06):</strong>
               <p>
-                · Lạc sống (200 g) đã rang sẵn từ chiều Chủ Nhật cất hũ kín, mỗi sáng chỉ việc múc rắc lên món ăn (20g cho ngày yến mạch, 30g cho ngày khoai lang, 50g cho cháo sáng Chủ Nhật).
+                · <strong>Ngâm yến mạch qua đêm (Overnight Oats):</strong> Với Thứ Hai, Thứ Tư, Thứ Sáu, có thể trộn sẵn yến mạch cùng sữa tươi/sữa chua Hy Lạp từ tối hôm trước để ngăn mát, sáng hôm sau chỉ việc cắt trái cây và rắc hạt (mất đúng 3 phút).
               </p>
               <p>
-                · Khoai lang và trứng luộc có thể hấp/luộc từ tối hôm trước hoặc bật xửng hấp cách thủy trong lúc làm vệ sinh cá nhân buổi sáng.
+                · <strong>Hấp khoai & bắp cùng lúc nấu cơm tối:</strong> Sáng hôm sau làm nóng lại 2 phút bằng lò vi sóng cùng trứng gà. Tối Thứ Bảy ngâm trước 100g hạt sen và gạo lứt để sáng Chủ Nhật ninh cháo nhừ trong 20 phút.
               </p>
             </div>
           </motion.div>
@@ -193,14 +195,25 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25 }}
-            className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 sm:p-5 flex items-start gap-3"
+            className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 sm:p-5 space-y-2"
           >
-            <Flame className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
-            <div className="text-xs sm:text-sm text-stone-700 space-y-1 tabular-nums">
-              <strong className="text-emerald-950 font-bold block">Bí quyết giữ ức gà mềm ngọt khi hâm lại buổi trưa (Slide 06):</strong>
-              <p>
-                Thái ức gà theo thớ xiên với độ dày đồng đều (1,5–2 cm). Khi áp chảo chỉ dùng 10–15 ml dầu ăn, ngay khi mặt ngoài vừa xém vàng thì châm 2–3 thìa canh nước nóng và đậy nắp kín để hơi nước làm chín phần tâm tới đúng <strong>74°C</strong> mà không làm khô xác sợi cơ.
-              </p>
+            <div className="flex items-start gap-3">
+              <Flame className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
+              <div className="text-xs sm:text-sm text-stone-700 space-y-1.5 tabular-nums">
+                <strong className="text-emerald-950 font-bold block">
+                  Nguyên tắc kiểm soát nhiệt độ cho hộp cơm trưa & Công thức Sốt chấm Eat Clean (Slide 07):
+                </strong>
+                <p>
+                  · <strong>Để thịt nghỉ (Resting time) 5 phút trước khi cắt:</strong> Giúp dịch ngọt phân bổ lại đều khắp thớ cơ, không chảy nước ra đáy hộp cơm làm nhão hạt cơm lứt. Gia cầm đạt tâm <strong>74°C</strong>; Bò bít tết & Cá hồi đạt <strong>63°C (Medium)</strong>.
+                </p>
+                <p>
+                  · <strong>Chế biến ức vịt sốt cam (Trưa T2 Mức 3):</strong> Khứa caro mặt da vịt, áp chảo lạnh không dầu 6 phút cho chảy bớt mỡ dưới da, chắt bỏ mỡ thừa rồi rim cùng 50ml nước cam tươi tới khi tâm đạt 74°C.
+                </p>
+                <p className="p-2.5 rounded-xl bg-white border border-emerald-200 text-emerald-950">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500 inline mr-1" />
+                  <strong>Mẹo pha sốt chấm Eat Clean không đường tinh luyện:</strong> Pha 2 thìa nước cốt chanh vàng/chanh ta + 1 thìa nước mắm cốt (hoặc xì dầu giảm mặn) + 1 thìa nước ấm + tỏi ớt băm và ngò rí; đóng vào hũ nhỏ 30ml mang theo hộp cơm trưa và chỉ rưới lên thịt/cá sau khi đã quay nóng.
+                </p>
+              </div>
             </div>
           </motion.div>
         )}
@@ -216,12 +229,12 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
           >
             <Info className="w-5 h-5 text-blue-700 shrink-0 mt-0.5" />
             <div className="text-xs sm:text-sm text-stone-700 space-y-1 tabular-nums">
-              <strong className="text-blue-950 font-bold block">Lưu ý quan trọng khi chia suất mang đi làm (Slide 07):</strong>
+              <strong className="text-blue-950 font-bold block">Lưu ý khi chế biến Tôm, Cồi sò điệp & Cá hấp mang đi làm (Slide 08):</strong>
               <p>
-                · Với món cá diêu hồng: Bắt buộc gỡ sạch toàn bộ xương cá ngay sau khi hấp chín trước khi chia phần vào 2 hộp ăn trưa Thứ Năm để đảm bảo an toàn tuyệt đối và tiện lợi tại văn phòng.
+                · <strong>Tôm hấp sả/nước dừa:</strong> Tôm vừa chuyển đỏ cam và cong chữ C (5–7 phút) là tắt bếp ngay để thịt giòn ngọt; bóc sẵn vỏ tôm cho 2 hộp trưa Thứ Tư. Với cồi sò điệp Nhật (Mức 4), thấm khô áp chảo 90 giây mỗi mặt.
               </p>
               <p>
-                · Nước tiết ra từ đĩa hấp: Rưới 1–2 thìa nước hấp gừng ngọt thanh lên phần thịt/cá trong hộp để giữ độ ẩm tự nhiên khi bảo quản trong tủ lạnh.
+                · <strong>Cá nục / Cá chẽm / Cá tuyết hấp:</strong> Bắt buộc gỡ sạch toàn bộ xương cá ngay khi còn ấm trước khi chia vào 2 hộp ăn trưa Thứ Năm; rưới 2 thìa nước hấp cá nấm đông cô lên mặt thịt cá.
               </p>
             </div>
           </motion.div>
@@ -234,13 +247,13 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25 }}
-            className="bg-stone-50 border border-stone-200 rounded-2xl p-4 sm:p-5 flex items-start gap-3"
+            className="bg-stone-100 border border-stone-200 rounded-2xl p-4 sm:p-5 flex items-start gap-3"
           >
             <Info className="w-5 h-5 text-stone-700 shrink-0 mt-0.5" />
             <div className="text-xs sm:text-sm text-stone-700 space-y-1 tabular-nums">
-              <strong className="text-stone-900 font-bold block">Đạm thực vật & Trứng tươi nguyên quả (Slide 08):</strong>
+              <strong className="text-stone-900 font-bold block">Đậu hũ non om nấm & Hấp trứng hải sản (Slide 08):</strong>
               <p>
-                Đậu hũ trắng tươi 1,6kg chia 2 mẻ mua giữa tuần cho tối T5 và tối T7. Kết hợp cùng 20 quả trứng gà cung cấp nguồn axit amin hoàn chỉnh, chất béo tốt và lecithin cho não bộ với giá thành bình dân.
+                Phương pháp hấp cách thủy và om nấm tự nhiên giúp cắt giảm 80% lượng dầu mỡ cho giữa tuần. Kết hợp 800g đậu hũ/mẻ + 4 quả trứng gà + 300g nấm tươi (+ 150–250g bò/tôm/cồi sò điệp ở Mức 2–4) tạo hương vị ngọt thanh tự nhiên.
               </p>
             </div>
           </motion.div>
@@ -276,6 +289,12 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
+                    {recipe.tierTag && (
+                      <span className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-[#1B4332]/90 text-amber-300 text-[11px] font-bold backdrop-blur-sm">
+                        {recipe.tierTag}
+                      </span>
+                    )}
+
                     {/* Change Photo Button */}
                     <button
                       type="button"
@@ -294,7 +313,7 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
                         <span>{recipe.cookTime}</span>
                       </span>
                       <span className="font-semibold text-emerald-200">
-                        {recipe.servingsText} {recipe.targetTemp ? `· ${recipe.targetTemp}` : ''}
+                        {recipe.servingsText} {recipe.targetTemp ? `· Tâm ${recipe.targetTemp}` : ''}
                       </span>
                     </div>
                   </div>
@@ -315,7 +334,7 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
                       <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200/80 space-y-1.5 tabular-nums">
                         <div className="flex items-center justify-between text-[11px] text-stone-500 font-medium">
                           <span>Tỷ lệ khay Meal Prep:</span>
-                          <span>{recipe.mealBoxRatio.carbPercent}% Cơm · {recipe.mealBoxRatio.proteinPercent}% Đạm · {recipe.mealBoxRatio.veggiePercent}% Rau</span>
+                          <span>{recipe.mealBoxRatio.carbPercent}% Tinh bột · {recipe.mealBoxRatio.proteinPercent}% Đạm · {recipe.mealBoxRatio.veggiePercent}% Rau</span>
                         </div>
                         <div className="w-full h-2 rounded-full flex overflow-hidden">
                           <div
@@ -344,9 +363,9 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
                       </div>
                       <ul className="text-xs text-stone-600 space-y-1">
                         {recipe.ingredients.slice(0, 3).map((ing, iIdx) => (
-                          <li key={iIdx} className="flex items-center justify-between gap-2">
+                          <li key={iIdx} className="flex items-start justify-between gap-2">
                             <span>· {ing.name}</span>
-                            <span className="font-medium text-stone-800 text-right">
+                            <span className="font-medium text-stone-800 text-right shrink-0">
                               {scaleTextNumbers(ing.baseAmount, factor)}
                             </span>
                           </li>
@@ -374,9 +393,9 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
                               <span className="text-xs font-semibold text-stone-700">Gia vị & phụ gia:</span>
                               <ul className="text-xs text-stone-600 space-y-0.5">
                                 {recipe.ingredients.slice(3).map((ing, idx) => (
-                                  <li key={idx} className="flex items-center justify-between gap-2">
+                                  <li key={idx} className="flex items-start justify-between gap-2">
                                     <span>· {ing.name}</span>
-                                    <span className="font-medium text-stone-800 text-right">{scaleTextNumbers(ing.baseAmount, factor)}</span>
+                                    <span className="font-medium text-stone-800 text-right shrink-0">{scaleTextNumbers(ing.baseAmount, factor)}</span>
                                   </li>
                                 ))}
                               </ul>
@@ -396,7 +415,7 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
                                       </span>
                                     )}
                                   </div>
-                                  <p className="text-stone-600 mt-1 leading-relaxed">{st.instruction}</p>
+                                  <p className="text-stone-600 mt-1 leading-relaxed">{scaleTextNumbers(st.instruction, factor)}</p>
                                 </div>
                               ))}
                             </div>
@@ -436,9 +455,9 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
                     whileHover={{ y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => onOpenCookingMode(recipe)}
-                    className="w-full py-2.5 px-4 rounded-xl bg-[#1B4332] hover:bg-[#24523E] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors shadow whitespace-nowrap shrink-0 cursor-pointer"
+                    className="w-full py-2.5 px-4 rounded-xl bg-[#1B4332] hover:bg-[#24523E] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors shadow cursor-pointer"
                   >
-                    <Play className="w-3.5 h-3.5 fill-current text-amber-400" />
+                    <Play className="w-3.5 h-3.5 fill-current text-amber-400 shrink-0" />
                     <span>Chế Độ Đứng Bếp (Cooking Mode)</span>
                   </motion.button>
                 </div>
@@ -528,6 +547,6 @@ export const RecipeLibrary: React.FC<RecipeLibraryProps> = ({
           </div>
         </div>
       )}
-    </motion.section>
+    </section>
   );
 };

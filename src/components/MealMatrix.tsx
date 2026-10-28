@@ -1,47 +1,50 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sun, Sunset, Moon, ArrowRight, Info, ChefHat } from 'lucide-react';
-import { PortionSize } from '../types';
-import { MEAL_PLAN_7_DAYS } from '../data/eatCleanData';
+import { Sun, Sunset, Moon, ArrowRight, Info, ChefHat, Sparkles } from 'lucide-react';
+import { PortionSize, BudgetTierId } from '../types';
+import { MEALS_BY_TIER, BUDGET_TIERS_METADATA } from '../data/flexibleEatCleanData';
 import { scaleTextNumbers, calculateScaleFactor } from '../utils/calculator';
 
 interface MealMatrixProps {
   portion: PortionSize;
+  budgetTier: BudgetTierId;
   onOpenRecipeModal?: (recipeTitle: string) => void;
   onNavigateToTab?: (tabId: string) => void;
 }
 
 export const MealMatrix: React.FC<MealMatrixProps> = ({
   portion,
+  budgetTier,
   onNavigateToTab,
 }) => {
   const [selectedDay, setSelectedDay] = useState<string>('all');
   const factor = calculateScaleFactor(portion);
+  const currentMeals = MEALS_BY_TIER[budgetTier];
+  const tierMeta = BUDGET_TIERS_METADATA[budgetTier];
 
   const filteredDays = selectedDay === 'all'
-    ? MEAL_PLAN_7_DAYS
-    : MEAL_PLAN_7_DAYS.filter((d) => d.shortName === selectedDay);
+    ? currentMeals
+    : currentMeals.filter((d) => d.shortName === selectedDay);
+
+  const isHighTier = budgetTier === '3.5m' || budgetTier === '5m';
 
   return (
-    <motion.section
+    <section
       id="meal-plan"
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       className="space-y-8"
     >
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-stone-200 pb-5">
         <div>
-          <div className="text-emerald-800 text-xs font-semibold tracking-wider mb-1.5">
-            01. Lịch Thực Đơn Tuần · Nguồn từ Slide 02
+          <div className="text-emerald-800 text-xs font-semibold tracking-wider mb-1.5 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+            <span>01. Lịch Thực Đơn Tuần · {tierMeta.name}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1B4332] font-serif text-balance">
-            Ma Trận Thực Đơn 7 Ngày: Nấu 4 Suất Buổi Tối Để Giải Phóng Bữa Trưa
+            Ma Trận Thực Đơn 7 Ngày ({tierMeta.shortLabel}): Nấu {4 * factor} Suất Tối Giải Phóng Bữa Trưa
           </h2>
           <p className="text-stone-600 text-sm mt-1">
-            Định lượng tính cho {portion} người lớn. Bữa tối Thứ Hai đến Thứ Bảy nấu mẻ {4 * factor} suất (gồm {2 * factor} suất ăn tối nay + {2 * factor} suất cất hộp ăn trưa mai).
+            Định lượng tính cho {portion} người lớn. {tierMeta.subtitle}.
           </p>
         </div>
 
@@ -58,7 +61,7 @@ export const MealMatrix: React.FC<MealMatrixProps> = ({
           >
             Cả tuần
           </button>
-          {MEAL_PLAN_7_DAYS.map((day) => (
+          {currentMeals.map((day) => (
             <button
               key={day.shortName}
               type="button"
@@ -75,35 +78,69 @@ export const MealMatrix: React.FC<MealMatrixProps> = ({
         </div>
       </div>
 
-      {/* 2 Principle Boxes */}
+      {/* 2 Principle Boxes dynamically adapted to Budget Tier (Slide 02 vs Slide 03) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <motion.div
-          whileHover={{ y: -3 }}
-          transition={{ duration: 0.25 }}
-          className="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 sm:p-5 space-y-2"
-        >
-          <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
-            <Info className="w-4 h-4 text-amber-600 shrink-0" />
-            <span>Nguyên tắc định lượng gạo & tinh bột ({portion} người)</span>
-          </div>
-          <p className="text-xs sm:text-sm text-stone-700 leading-relaxed tabular-nums">
-            Mỗi bữa cơm {portion} người dùng <strong className="text-amber-900">{Math.round(160 * factor)} g</strong> gạo khô; mẻ nấu 4 suất tối dùng <strong className="text-amber-900">{Math.round(320 * factor)} g</strong> gạo khô. Cả tuần 14 bữa cơm dùng <strong className="text-amber-900">{Math.round(2240 * factor)} g</strong> gạo + <strong className="text-amber-900">{Math.round(160 * factor)} g</strong> nấu cháo Chủ Nhật = <strong className="text-amber-950 font-bold">{Math.round(2400 * factor)} g</strong> gạo (dùng gạo trắng hoặc pha gạo lứt đều được).
-          </p>
-        </motion.div>
+        {isHighTier ? (
+          <>
+            <motion.div
+              whileHover={{ y: -3 }}
+              transition={{ duration: 0.25 }}
+              className="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 sm:p-5 space-y-2"
+            >
+              <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
+                <Info className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>Lợi ích sinh học của thực đơn 3,5 Triệu – 5,0 Triệu (Slide 03)</span>
+              </div>
+              <p className="text-xs sm:text-sm text-stone-700 leading-relaxed tabular-nums">
+                Bổ sung trên <strong className="text-amber-900">{Math.round(4500 * factor)} mg EPA/DHA (Omega-3)</strong> mỗi tuần từ cá hồi Nauy, cá tuyết biển sâu và hạt óc chó/mắc ca; tăng hàm lượng chất chống oxy hóa Anthocyanin & Vitamin C từ quả mọng (việt quất, dâu tây, kiwi vàng) và giảm tối đa dư lượng nông dược nhờ nguồn rau củ hữu cơ.
+              </p>
+            </motion.div>
 
-        <motion.div
-          whileHover={{ y: -3 }}
-          transition={{ duration: 0.25 }}
-          className="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 sm:p-5 space-y-2"
-        >
-          <div className="flex items-center gap-2 text-emerald-900 font-bold text-sm">
-            <Info className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>Nguyên tắc cân nguyên liệu tươi & linh hoạt khẩu phần</span>
-          </div>
-          <p className="text-xs sm:text-sm text-stone-700 leading-relaxed tabular-nums">
-            Rau củ tính theo khối lượng mua trước sơ chế (<strong className="text-emerald-900">{(6.0 * factor).toFixed(1)} kg rau</strong>: gồm {(5.7 * factor).toFixed(1)} kg trong món + {(0.3 * factor).toFixed(1)} kg dưa leo ăn kèm); thịt đã lọc sạch da/mỡ, cá cân nguyên con. Người vận động nhiều có thể tăng cơm/khoai từ Quỹ dự phòng.
-          </p>
-        </motion.div>
+            <motion.div
+              whileHover={{ y: -3 }}
+              transition={{ duration: 0.25 }}
+              className="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 sm:p-5 space-y-2"
+            >
+              <div className="flex items-center gap-2 text-emerald-900 font-bold text-sm">
+                <Info className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Nguyên tắc pha trộn Diêm mạch (Quinoa) & Gạo lứt ({portion} người)</span>
+              </div>
+              <p className="text-xs sm:text-sm text-stone-700 leading-relaxed tabular-nums">
+                Trộn <strong className="text-emerald-900">70% gạo lứt đỏ/huyết rồng + 30% hạt diêm mạch (Quinoa)</strong> theo đúng định lượng <strong className="text-emerald-900">{Math.round(160 * factor)} g khô/bữa</strong> ({Math.round(320 * factor)} g khô/mẻ {4 * factor} suất). Hạt Quinoa cung cấp đủ 9 axit amin thiết yếu, giúp hạt cơm tơi mềm và không bị khô cứng khi hâm lại vào buổi trưa tại văn phòng.
+              </p>
+            </motion.div>
+          </>
+        ) : (
+          <>
+            <motion.div
+              whileHover={{ y: -3 }}
+              transition={{ duration: 0.25 }}
+              className="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 sm:p-5 space-y-2"
+            >
+              <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
+                <Info className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>Nguyên tắc giữ chuẩn dinh dưỡng & tinh bột ({portion} người)</span>
+              </div>
+              <p className="text-xs sm:text-sm text-stone-700 leading-relaxed tabular-nums">
+                Khối lượng đạm nguyên chất (<strong className="text-amber-900">{Math.round(115 * factor)}–{Math.round(125 * factor)} g Protein/ngày</strong>) và tinh bột phức (<strong className="text-amber-900">{(2.4 * factor).toFixed(1)} kg gạo + {(2.5 * factor).toFixed(1)} kg khoai/bắp/yến mạch</strong>) giữ cố định. Mỗi mẻ nấu {4 * factor} suất tối dùng <strong className="text-amber-900">{Math.round(320 * factor)} g gạo khô</strong>. Ở Mức 2 nâng cấp sang thăn bò Việt, cá chẽm phi lê, tôm thẻ lớn, bơ sáp và sữa chua Hy Lạp.
+              </p>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ y: -3 }}
+              transition={{ duration: 0.25 }}
+              className="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 sm:p-5 space-y-2"
+            >
+              <div className="flex items-center gap-2 text-emerald-900 font-bold text-sm">
+                <Info className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Quy tắc hoán đổi linh hoạt tại chợ & siêu thị (Slide 02)</span>
+              </div>
+              <p className="text-xs sm:text-sm text-stone-700 leading-relaxed tabular-nums">
+                Má đùi gà lọc xương bỏ da (85.000đ/kg) có thể thay thế 1:1 bằng ức gà phi lê; cá nục bông (80.000đ/kg) thay bằng cá rô phi hoặc cá bạc má; ở Mức 2 có thể đổi cá chẽm sang cá thu phấn hoặc cá hồng nguyên con mà không làm thay đổi cấu trúc calo cả tuần.
+              </p>
+            </motion.div>
+          </>
+        )}
       </div>
 
       {/* Days Meal Plan Cards with Smooth Scroll & Filter Animations */}
@@ -111,7 +148,7 @@ export const MealMatrix: React.FC<MealMatrixProps> = ({
         <AnimatePresence mode="popLayout">
           {filteredDays.map((day, idx) => (
             <motion.div
-              key={day.shortName}
+              key={`${budgetTier}-${day.shortName}`}
               layout
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -128,6 +165,9 @@ export const MealMatrix: React.FC<MealMatrixProps> = ({
                   </span>
                   <span className="text-lg font-bold text-stone-900 font-serif">
                     {day.dayName}
+                  </span>
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-900">
+                    {tierMeta.shortLabel}
                   </span>
                 </div>
                 <div className="text-xs font-medium text-stone-500">
@@ -201,7 +241,7 @@ export const MealMatrix: React.FC<MealMatrixProps> = ({
                       />
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5">
                         <span className="text-[11px] font-medium text-emerald-200">
-                          Rảnh tay buổi trưa · Chỉ cần hâm nóng ≥ 74°C
+                          Rảnh tay buổi trưa · Hâm nóng chuẩn ≥ 74°C
                         </span>
                       </div>
                     </div>
@@ -255,7 +295,7 @@ export const MealMatrix: React.FC<MealMatrixProps> = ({
                       />
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5 flex justify-end">
                         <span className="text-[11px] font-bold text-amber-300">
-                          Tâm đạt 74°C
+                          Tâm đạt {day.dinner.targetTemp || '74°C'}
                         </span>
                       </div>
                     </div>
@@ -287,7 +327,7 @@ export const MealMatrix: React.FC<MealMatrixProps> = ({
                         whileHover={{ y: -2 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => onNavigateToTab('recipes')}
-                        className="w-full mt-2 inline-flex items-center justify-center gap-1.5 py-2 px-4 rounded-lg bg-stone-100 hover:bg-[#1B4332] text-stone-700 hover:text-white text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                        className="w-full mt-2 inline-flex items-center justify-center gap-1.5 py-2 px-4 rounded-lg bg-stone-100 hover:bg-[#1B4332] text-stone-700 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
                       >
                         <ChefHat className="w-3.5 h-3.5" />
                         <span>Xem chi tiết công thức nấu</span>
@@ -303,8 +343,8 @@ export const MealMatrix: React.FC<MealMatrixProps> = ({
 
       {/* Footer Notice */}
       <div className="text-center p-4 rounded-xl bg-stone-100 border border-stone-200 text-xs text-stone-600">
-        <strong>Lưu ý quan trọng từ Slide 02:</strong> Không cộng trùng nguyên liệu ở bữa trưa Thứ Ba–Chủ Nhật vì đã nằm trọn trong mẻ 4 suất nấu tối hôm trước · Trái cây (1,5 kg chuối + 1,0 kg ổi) dùng tráng miệng lành mạnh sau các bữa ăn.
+        <strong>Lưu ý quan trọng:</strong> Bữa trưa Thứ Ba–Chủ Nhật lấy từ mẻ {4 * factor} suất nấu tối hôm trước · Thịt bò Úc/Việt và cá hồi áp chảo ở mức <strong>Medium (63°C)</strong> vào buổi tối để khi hâm nóng buổi trưa không bị dai hoặc khô xơ.
       </div>
-    </motion.section>
+    </section>
   );
 };
