@@ -1,25 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import {
-  ShoppingCart,
   CheckCircle2,
   Circle,
   RotateCcw,
-  TrendingDown,
-  TrendingUp,
   Share2,
   Check,
   AlertCircle,
   PiggyBank,
   ArrowRightLeft,
-  Filter,
 } from 'lucide-react';
-import { PortionSize, IngredientItem } from '../types';
+import { PortionSize } from '../types';
 import { GROCERY_ITEMS, BUDGET_BREAKDOWN } from '../data/eatCleanData';
 import {
   calculateScaleFactor,
   formatVND,
-  calculateBudgetTotals,
-  calculateSwapSavings,
 } from '../utils/calculator';
 
 interface GroceryBudgetProps {
@@ -36,7 +31,6 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
 }) => {
   const factor = calculateScaleFactor(portion);
 
-  // Checked items stored in localStorage
   const [checkedMap, setCheckedMap] = useState<Record<string, boolean>>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_CHECKED);
@@ -46,7 +40,6 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
     }
   });
 
-  // State for swapping pork to chicken (From strategy in Slide 03)
   const [isPorkSwappedToChicken, setIsPorkSwappedToChicken] = useState<boolean>(() => {
     try {
       return localStorage.getItem(STORAGE_KEY_SWAP) === 'true';
@@ -55,13 +48,8 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
     }
   });
 
-  // Category & Phase Filter
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedPhase, setSelectedPhase] = useState<string>('all');
-
-  // Custom price simulation for pork
-  const [simulatedPorkPrice, setSimulatedPorkPrice] = useState<number>(150000); // 150k/kg standard
-  const [simulatedChickenPrice, setSimulatedChickenPrice] = useState<number>(90000); // 90k/kg standard
 
   useEffect(() => {
     try {
@@ -98,7 +86,6 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
     setCheckedMap(all);
   };
 
-  // Adjust grocery items if pork is swapped for chicken
   const effectiveItems = GROCERY_ITEMS.map((item) => {
     if (item.id === 'pork-shoulder' && isPorkSwappedToChicken) {
       return {
@@ -112,14 +99,12 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
     return item;
   });
 
-  // Filter items
   const filteredItems = effectiveItems.filter((item) => {
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     const matchesPhase = selectedPhase === 'all' || item.shopPhase === selectedPhase;
     return matchesCategory && matchesPhase;
   });
 
-  // Calculate totals
   const totalPlannedCost = effectiveItems.reduce((acc, it) => acc + it.baseTotalPrice * factor, 0);
   const totalSpent = effectiveItems.reduce((acc, it) => {
     return checkedMap[it.id] ? acc + it.baseTotalPrice * factor : acc;
@@ -127,51 +112,60 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
   const remainingInPlan = Math.max(0, totalPlannedCost - totalSpent);
   const percentDone = Math.round((totalSpent / totalPlannedCost) * 100);
 
-  const swapCalc = calculateSwapSavings(
-    (simulatedPorkPrice * 0.6),
-    simulatedChickenPrice
-  );
-
   const categories = ['all', 'Đạm', 'Tinh bột', 'Rau củ', 'Trái cây', 'Sữa & lạc', 'Gia vị'];
 
   return (
-    <section id="grocery" className="space-y-8">
+    <motion.section
+      id="grocery"
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      className="space-y-8"
+    >
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-stone-200 pb-5">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-2">
-            <ShoppingCart className="w-3.5 h-3.5 text-emerald-700" />
-            PHÂN KHU 3 • NGUỒN TỪ SLIDE 03
+          <div className="text-emerald-800 text-xs font-semibold tracking-wider mb-1.5">
+            02. Quản Lý Đi Chợ & Ngân Sách · Nguồn từ Slide 03
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1B4332] font-serif">
-            Danh Sách Đi Chợ & Phân Bổ Ngân Sách {formatVND(totalPlannedCost)}
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1B4332] font-serif text-balance">
+            Danh Sách Đi Chợ & Phân Bổ Ngân Sách <span className="tabular-nums">{formatVND(totalPlannedCost)}</span>
           </h2>
-          <p className="text-stone-600 text-sm mt-1">
+          <p className="text-stone-600 text-sm mt-1 tabular-nums">
             Nhóm Đạm chiếm 47,8% chi phí; giữ lại {formatVND(115000 * factor)} dự phòng trượt giá hoặc tăng khẩu phần cho người tập luyện.
           </p>
         </div>
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 shrink-0">
-          <button
+          <motion.button
             type="button"
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.97 }}
             onClick={onOpenExportModal}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold text-xs sm:text-sm shadow transition-all active:scale-95"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold text-xs sm:text-sm shadow transition-colors whitespace-nowrap shrink-0 cursor-pointer"
           >
             <Share2 className="w-4 h-4 text-stone-950" />
-            Xuất Zalo / In ấn
-          </button>
+            <span>Xuất Zalo / In ấn</span>
+          </motion.button>
         </div>
       </div>
 
       {/* Progress & Live Spent Gauge */}
-      <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-sm space-y-4">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.45 }}
+        className="bg-white rounded-2xl border border-stone-200 p-5 space-y-4"
+      >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
+            <div className="text-xs font-semibold text-stone-500">
               Tiến độ mua sắm giỏ hàng tuần
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-stone-900 mt-0.5">
+            <div className="text-xl sm:text-2xl font-bold text-stone-900 mt-0.5 tabular-nums">
               Đã nhặt: <span className="text-emerald-700">{formatVND(totalSpent)}</span>{' '}
               <span className="text-sm font-normal text-stone-500">
                 / {formatVND(totalPlannedCost)} ({percentDone}%)
@@ -183,34 +177,36 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
             <button
               type="button"
               onClick={handleSelectAll}
-              className="px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-stone-700 hover:bg-stone-50"
+              className="px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-stone-700 hover:bg-stone-50 whitespace-nowrap shrink-0 cursor-pointer"
             >
               Chọn tất cả
             </button>
             <button
               type="button"
               onClick={handleResetChecks}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-stone-700 hover:bg-stone-50"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-stone-700 hover:bg-stone-50 whitespace-nowrap shrink-0 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5 text-stone-500" />
-              Đặt lại giỏ
+              <span>Đặt lại giỏ</span>
             </button>
           </div>
         </div>
 
-        {/* Progress Bar */}
+        {/* Animated Progress Bar */}
         <div className="w-full bg-stone-100 rounded-full h-3 overflow-hidden border border-stone-200">
-          <div
-            className="bg-emerald-600 h-full rounded-full transition-all duration-500"
-            style={{ width: `${Math.min(100, percentDone)}%` }}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: Math.min(1, percentDone / 100) }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="bg-emerald-600 h-full w-full rounded-full origin-left"
           />
         </div>
 
-        <div className="flex flex-wrap items-center justify-between text-xs text-stone-500 pt-1">
+        <div className="flex flex-wrap items-center justify-between text-xs text-stone-500 pt-1 tabular-nums">
           <span>Còn lại cần chi: <strong>{formatVND(remainingInPlan)}</strong></span>
           <span>Quỹ dự phòng an toàn: <strong className="text-emerald-700">{formatVND(115000 * factor)}</strong> (11,5% ngân sách trần)</span>
         </div>
-      </div>
+      </motion.div>
 
       {/* Main Grid: Left = Shopping Table, Right = Budget Distribution & Price Strategy */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -224,7 +220,7 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
                   key={cat}
                   type="button"
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
                     selectedCategory === cat
                       ? 'bg-[#1B4332] text-white shadow-sm'
                       : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200'
@@ -240,7 +236,7 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
               <button
                 type="button"
                 onClick={() => setSelectedPhase('all')}
-                className={`px-2 py-0.5 rounded text-[11px] font-medium ${
+                className={`px-2 py-1 rounded text-[11px] font-medium whitespace-nowrap shrink-0 cursor-pointer ${
                   selectedPhase === 'all' ? 'bg-stone-800 text-white' : 'text-stone-600 hover:bg-stone-200'
                 }`}
               >
@@ -249,7 +245,7 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
               <button
                 type="button"
                 onClick={() => setSelectedPhase('Chủ Nhật')}
-                className={`px-2 py-0.5 rounded text-[11px] font-medium ${
+                className={`px-2 py-1 rounded text-[11px] font-medium whitespace-nowrap shrink-0 cursor-pointer ${
                   selectedPhase === 'Chủ Nhật' ? 'bg-stone-800 text-white' : 'text-stone-600 hover:bg-stone-200'
                 }`}
               >
@@ -258,7 +254,7 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
               <button
                 type="button"
                 onClick={() => setSelectedPhase('Giữa tuần')}
-                className={`px-2 py-0.5 rounded text-[11px] font-medium ${
+                className={`px-2 py-1 rounded text-[11px] font-medium whitespace-nowrap shrink-0 cursor-pointer ${
                   selectedPhase === 'Giữa tuần' ? 'bg-stone-800 text-white' : 'text-stone-600 hover:bg-stone-200'
                 }`}
               >
@@ -268,10 +264,10 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
           </div>
 
           {/* Table Items */}
-          <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="bg-[#FAF8F5] text-stone-700 text-xs font-semibold uppercase tracking-wider border-b border-stone-200">
+                <thead className="bg-[#FAF8F5] text-stone-700 text-xs font-semibold border-b border-stone-200">
                   <tr>
                     <th scope="col" className="p-3.5 w-12 text-center">Mua</th>
                     <th scope="col" className="p-3.5">Nguyên liệu & Phân chia</th>
@@ -302,7 +298,7 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
                               e.stopPropagation();
                               toggleCheck(item.id);
                             }}
-                            className="text-emerald-700 hover:scale-110 transition-transform"
+                            className="text-emerald-700 hover:scale-110 transition-transform cursor-pointer"
                           >
                             {isChecked ? (
                               <CheckCircle2 className="w-5 h-5 text-emerald-600 fill-emerald-100" />
@@ -312,7 +308,7 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
                           </button>
                         </td>
                         <td className="p-3.5">
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-1.5">
                             <span
                               className={`font-semibold ${
                                 isChecked ? 'line-through text-stone-400' : 'text-stone-900'
@@ -320,12 +316,10 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
                             >
                               {item.name}
                             </span>
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-stone-100 text-stone-600 border border-stone-200">
-                              {item.category}
-                            </span>
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                              {item.shopPhase}
-                            </span>
+                            <span className="text-xs text-stone-400">·</span>
+                            <span className="text-xs text-stone-500">{item.category}</span>
+                            <span className="text-xs text-stone-400">·</span>
+                            <span className="text-xs text-amber-700 font-medium">{item.shopPhase}</span>
                           </div>
                           <div
                             className={`text-xs mt-1 leading-snug ${
@@ -335,10 +329,10 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
                             {item.distribution}
                           </div>
                         </td>
-                        <td className="p-3.5 text-right font-medium text-stone-700 whitespace-nowrap">
+                        <td className="p-3.5 text-right font-medium text-stone-700 whitespace-nowrap tabular-nums">
                           {factor === 1 ? item.baseAmount : `${(item.baseQty * factor).toFixed(1)} ${item.unit}`}
                         </td>
-                        <td className="p-3.5 text-right font-bold text-stone-900 whitespace-nowrap">
+                        <td className="p-3.5 text-right font-bold text-stone-900 whitespace-nowrap tabular-nums">
                           <span className={isChecked ? 'line-through text-stone-400' : 'text-emerald-900'}>
                             {formatVND(itemTotal)}
                           </span>
@@ -361,33 +355,40 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
         {/* Right Column (5 cols): Budget Structure & Price Fluctuation Strategy */}
         <div className="lg:col-span-5 space-y-6">
           {/* Budget Structure Breakdown */}
-          <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-sm space-y-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="bg-white rounded-2xl border border-stone-200 p-5 space-y-4"
+          >
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-stone-900 text-base font-serif flex items-center gap-2">
                 <PiggyBank className="w-4 h-4 text-emerald-700" />
-                Cơ Cấu Ngân Sách Tuần (Trần {formatVND(1000000 * factor)})
+                <span>Cơ Cấu Ngân Sách Tuần (Trần {formatVND(1000000 * factor)})</span>
               </h3>
               <span className="text-xs text-stone-500 font-medium">Slide 03</span>
             </div>
 
             <div className="space-y-3">
-              {BUDGET_BREAKDOWN.map((group) => {
+              {BUDGET_BREAKDOWN.map((group, idx) => {
                 const scaledAmount = group.amount * factor;
                 return (
                   <div key={group.name} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs font-medium">
+                    <div className="flex items-center justify-between text-xs font-medium tabular-nums">
                       <span className="text-stone-700">{group.name}</span>
                       <span className="font-bold text-stone-900">
                         {formatVND(scaledAmount)} ({group.percentage}%)
                       </span>
                     </div>
                     <div className="w-full bg-stone-100 rounded-full h-2.5 overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-300"
-                        style={{
-                          width: `${group.ceilingPercent}%`,
-                          backgroundColor: group.color,
-                        }}
+                      <motion.div
+                        initial={{ scaleX: 0 }}
+                        whileInView={{ scaleX: group.ceilingPercent / 100 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.65, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
+                        className="h-full w-full rounded-full origin-left"
+                        style={{ backgroundColor: group.color }}
                       />
                     </div>
                   </div>
@@ -395,15 +396,18 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
               })}
 
               {/* Quỹ dự phòng bar */}
-              <div className="space-y-1 pt-1 border-t border-stone-100">
-                <div className="flex items-center justify-between text-xs font-medium text-emerald-800">
+              <div className="space-y-1 pt-2 border-t border-stone-100">
+                <div className="flex items-center justify-between text-xs font-medium text-emerald-800 tabular-nums">
                   <span className="font-semibold">Quỹ dự phòng an toàn</span>
                   <span className="font-bold">{formatVND(115000 * factor)} (11,5% trần)</span>
                 </div>
                 <div className="w-full bg-stone-100 rounded-full h-2.5 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-emerald-500"
-                    style={{ width: '11.5%' }}
+                  <motion.div
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 0.115 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.65, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                    className="h-full w-full rounded-full bg-emerald-500 origin-left"
                   />
                 </div>
               </div>
@@ -412,10 +416,16 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
             <div className="pt-2 text-[11px] text-stone-500 italic">
               * Dự toán giá chợ dân sinh lập ngày 30/09/2026 (chưa gồm điện, gas, nước sinh hoạt).
             </div>
-          </div>
+          </motion.div>
 
-          {/* Strategy for Market Price Fluctuation (Slide 03 + Upgrade 2) */}
-          <div className="bg-gradient-to-br from-[#FAF8F5] to-amber-50/70 rounded-2xl border-2 border-amber-300/80 p-5 shadow-sm space-y-4">
+          {/* Strategy for Market Price Fluctuation */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="bg-amber-50/70 rounded-2xl border border-amber-300/80 p-5 space-y-4"
+          >
             <div className="flex items-start gap-2 text-amber-900 font-bold text-base">
               <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
               <div>
@@ -426,9 +436,9 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
               </div>
             </div>
 
-            <ul className="text-xs text-stone-700 space-y-2 list-disc list-inside">
+            <ul className="text-xs text-stone-700 space-y-2 list-disc list-inside tabular-nums">
               <li>
-                <strong>Ưu tiên quỹ dự phòng {formatVND(115000 * factor)}:</strong> Hấp thụ các đợt tăng giá nhẹ trước khi phải can thiệp điều chỉnh thực đơn.
+                <strong>Ưu tiên quỹ dự phòng {formatVND(115000 * factor)}:</strong> Hấp thụ các đợt tăng giá nhẹ trước khi điều chỉnh thực đơn.
               </li>
               <li>
                 <strong>Hoán đổi linh hoạt cùng định lượng:</strong> Đổi sang các loại rau theo mùa đồng giá tại chợ dân sinh.
@@ -439,13 +449,13 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
             </ul>
 
             {/* Smart Swap Simulator Interactive Widget */}
-            <div className="bg-white rounded-xl p-4 border border-amber-200 shadow-inner space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+            <div className="bg-white rounded-xl p-4 border border-amber-200 space-y-3">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-stone-900 flex items-center gap-1.5">
                   <ArrowRightLeft className="w-4 h-4 text-emerald-600" />
-                  Mô phỏng hoán đổi nạc heo ➔ ức gà
+                  <span>Mô phỏng hoán đổi nạc heo ➔ ức gà</span>
                 </span>
-                <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">
+                <span className="text-emerald-800 font-bold tabular-nums">
                   Tiết kiệm {formatVND(36000 * factor)}
                 </span>
               </div>
@@ -454,10 +464,12 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
                 Nếu thịt nạc vai ngoài chợ lên giá, bấm nút dưới để tự động chuyển 600g nạc heo sang 600g ức gà:
               </p>
 
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setIsPorkSwappedToChicken(!isPorkSwappedToChicken)}
-                className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                   isPorkSwappedToChicken
                     ? 'bg-emerald-700 text-white hover:bg-emerald-800 shadow'
                     : 'bg-amber-100 text-amber-900 hover:bg-amber-200 border border-amber-300'
@@ -465,20 +477,20 @@ export const GroceryBudget: React.FC<GroceryBudgetProps> = ({
               >
                 {isPorkSwappedToChicken ? (
                   <>
-                    <Check className="w-4 h-4 text-emerald-200" />
-                    Đang kích hoạt hoán đổi (Đã tiết kiệm {formatVND(36000 * factor)}) • Bấm để hủy
+                    <Check className="w-4 h-4 text-emerald-200 shrink-0" />
+                    <span>Đang kích hoạt hoán đổi (Đã tiết kiệm {formatVND(36000 * factor)}) · Bấm để hủy</span>
                   </>
                 ) : (
                   <>
-                    <ArrowRightLeft className="w-4 h-4 text-amber-700" />
-                    Áp dụng hoán đổi 600g Heo (90k) ➔ 600g Ức gà (54k)
+                    <ArrowRightLeft className="w-4 h-4 text-amber-700 shrink-0" />
+                    <span>Áp dụng hoán đổi 600g Heo (90k) ➔ 600g Ức gà (54k)</span>
                   </>
                 )}
-              </button>
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };

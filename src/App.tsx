@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PortionSize, Recipe } from './types';
 import { Header } from './components/Header';
 import { MealMatrix } from './components/MealMatrix';
@@ -13,12 +13,33 @@ import { RecipeLibrary } from './components/RecipeLibrary';
 import { FoodSafetyGuide } from './components/FoodSafetyGuide';
 import { CookingModeModal } from './components/CookingModeModal';
 import { ExportModal } from './components/ExportModal';
+import { ScrollProgress } from './components/ScrollProgress';
 
 export default function App() {
   const [portion, setPortion] = useState<PortionSize>(2);
   const [activeTab, setActiveTab] = useState<string>('meal-plan');
   const [cookingModeRecipe, setCookingModeRecipe] = useState<Recipe | null>(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
+
+  // Scroll spy to highlight current active section
+  useEffect(() => {
+    const sectionIds = ['meal-plan', 'grocery', 'prep', 'recipes', 'safety'];
+    const handleScrollSpy = () => {
+      for (let i = sectionIds.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sectionIds[i]);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 260) {
+            setActiveTab(sectionIds[i]);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScrollSpy, { passive: true });
+    return () => window.removeEventListener('scroll', handleScrollSpy);
+  }, []);
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -30,6 +51,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-stone-800">
+      {/* Smooth Scroll Progress Bar & Floating Navigation */}
+      <ScrollProgress activeTab={activeTab} onTabChange={handleTabChange} />
+
       {/* Top Banner & Header */}
       <Header
         portion={portion}
@@ -39,7 +63,7 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 space-y-16">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 space-y-20">
         {/* Phân Khu 2: Ma Trận Thực Đơn 7 Ngày */}
         <MealMatrix
           portion={portion}
@@ -87,10 +111,10 @@ export default function App() {
         <div className="max-w-7xl mx-auto space-y-4 text-center sm:text-left sm:flex sm:items-center sm:justify-between text-xs">
           <div className="space-y-1">
             <p className="font-bold text-white text-sm">
-              Cẩm Nang Thực Hành Nấu Ăn & Quản Lý Ngân Sách • Kế Hoạch 4 Tuần (Tuần 1)
+              Cẩm Nang Thực Hành Nấu Ăn & Quản Lý Ngân Sách · Kế Hoạch 4 Tuần (Tuần 1)
             </p>
             <p className="text-emerald-300/80">
-              Thực Đơn Eat Clean Tuần 1: 42 Suất Ăn Đủ Chất Chỉ Với 885.000 Đồng • Dự toán lập ngày 30/09/2026
+              Thực Đơn Eat Clean Tuần 1: 42 Suất Ăn Đủ Chất Chỉ Với 885.000 Đồng · Dự toán lập ngày 30/09/2026
             </p>
           </div>
 

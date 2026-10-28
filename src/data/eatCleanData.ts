@@ -142,14 +142,14 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Yến mạch 160g + sữa 330ml + chuối 300g + lạc 20g',
       prepTime: '5–7 phút',
       caloriesApprox: 420,
-      image: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/oatmeal.jpg',
     },
     lunch: {
       title: 'Cơm trắng, gà gừng sợi & rau cải luộc',
       description: 'Mẻ chuẩn bị sẵn từ chiều Chủ Nhật, hâm nóng thơm lừng mùi gừng sợi.',
       ingredients: 'Cơm (160g gạo) + gà gừng 300g + rau cải 350g',
       source: 'Nấu sẵn từ chiều Chủ Nhật (chia 2 hộp nông)',
-      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/chicken_ginger.jpg',
     },
     dinner: {
       title: 'Gà áp chảo vàng óng, bí đỏ hấp & cơm trắng',
@@ -157,7 +157,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Cơm (320g gạo) + gà áp chảo 600g + bí đỏ 700g',
       servingsCount: 4,
       prepNote: 'Múc ngay 2 suất vào hộp trưa mai trước khi dọn mâm tối',
-      image: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/chicken_pumpkin.jpg',
     },
   },
   {
@@ -169,7 +169,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Khoai lang 700g + 2 trứng luộc + dưa leo 200g + lạc 30g',
       prepTime: '15–20 phút (hoặc hấp tối hôm trước)',
       caloriesApprox: 450,
-      image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/sweet_potato.jpg',
     },
     lunch: {
       title: '2 suất cơm, gà áp chảo & bí đỏ hấp',
@@ -177,7 +177,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Cơm trắng + ức gà áp chảo + bí đỏ hấp mềm ngọt',
       source: 'Trích từ mẻ 4 suất nấu tối Thứ Hai',
       linkedDayId: 'T2',
-      image: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/chicken_pumpkin.jpg',
     },
     dinner: {
       title: 'Nạc heo hấp gừng sợi & bắp cải ngọt',
@@ -185,7 +185,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Cơm (320g gạo) + nạc heo hấp gừng 600g + bắp cải 700g',
       servingsCount: 4,
       prepNote: 'Hạ đông 1,2kg cá diêu hồng từ ngăn đá xuống ngăn mát cho tối Thứ Tư',
-      image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/steamed_pork.jpg',
     },
   },
   {
@@ -197,7 +197,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Yến mạch 160g + sữa 330ml + chuối 300g + lạc 20g',
       prepTime: '5–7 phút',
       caloriesApprox: 420,
-      image: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/oatmeal.jpg',
     },
     lunch: {
       title: '2 suất cơm, heo hấp gừng & bắp cải ngọt',
@@ -205,7 +205,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Cơm trắng + thịt heo hấp gừng mềm + bắp cải giòn ngọt',
       source: 'Trích từ mẻ 4 suất nấu tối Thứ Ba',
       linkedDayId: 'T3',
-      image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/steamed_pork.jpg',
     },
     dinner: {
       title: 'Cá diêu hồng hấp gừng sả 1,2kg & rau muống',
@@ -213,7 +213,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Cơm (320g gạo) + cá diêu hồng 1,2kg nguyên con + rau muống 700g',
       servingsCount: 4,
       prepNote: 'Bắt buộc gỡ sạch xương cá trước khi chia 2 suất hộp cho trưa mai',
-      image: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/steamed_fish.jpg',
     },
   },
   {
@@ -225,7 +225,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Khoai lang 700g + 2 trứng luộc + dưa leo 200g + lạc 30g',
       prepTime: '15–20 phút',
       caloriesApprox: 450,
-      image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/sweet_potato.jpg',
     },
     lunch: {
       title: '2 suất cơm, cá diêu hồng hấp phi lê & rau muống',
@@ -233,7 +233,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Cơm trắng + thịt cá diêu hồng không xương + rau muống luộc',
       source: 'Trích từ mẻ 4 suất nấu tối Thứ Tư',
       linkedDayId: 'T4',
-      image: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/steamed_fish.jpg',
     },
     dinner: {
       title: 'Đậu hũ sốt cà chua, trứng luộc chín & rau cải',
@@ -241,7 +241,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Cơm (320g gạo) + đậu hũ 800g + cà chua 300g + 4 trứng + cải 400g',
       servingsCount: 4,
       prepNote: 'Hạ đông 600g ức gà từ ngăn đá xuống ngăn mát chuẩn bị cho tối Thứ Sáu',
-      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/tofu_tomato.jpg',
     },
   },
   {
@@ -253,7 +253,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Yến mạch 180g + sữa 340ml + chuối 300g + lạc 20g',
       prepTime: '5–7 phút',
       caloriesApprox: 460,
-      image: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/oatmeal.jpg',
     },
     lunch: {
       title: '2 suất cơm, đậu hũ sốt cà chua, trứng & rau cải',
@@ -261,7 +261,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Cơm trắng + đậu hũ sốt cà chua + trứng + rau cải luộc',
       source: 'Trích từ mẻ 4 suất nấu tối Thứ Năm',
       linkedDayId: 'T5',
-      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/tofu_tomato.jpg',
     },
     dinner: {
       title: 'Gà nướng sả thơm lừng, bí đỏ & cà rốt hấp',
@@ -269,7 +269,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Cơm (320g gạo) + gà nướng sả 600g + bí đỏ 500g + cà rốt 200g',
       servingsCount: 4,
       prepNote: 'Chia 2 suất hộp nông cho trưa Thứ Bảy',
-      image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/chicken_lemongrass.jpg',
     },
   },
   {
@@ -281,7 +281,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Khoai lang 600g + 2 trứng luộc + dưa leo 200g + lạc 30g',
       prepTime: '15–20 phút',
       caloriesApprox: 430,
-      image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/sweet_potato.jpg',
     },
     lunch: {
       title: '2 suất cơm, gà nướng sả, bí đỏ & cà rốt',
@@ -289,7 +289,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Cơm trắng + gà nướng sả + bí đỏ & cà rốt hấp',
       source: 'Trích từ mẻ 4 suất nấu tối Thứ Sáu',
       linkedDayId: 'T6',
-      image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/chicken_lemongrass.jpg',
     },
     dinner: {
       title: 'Đậu hũ hấp trứng vàng óng, bắp cải & cà rốt',
@@ -297,7 +297,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Cơm (320g gạo) + đậu hũ 800g hấp 4 trứng + bắp cải 500g + cà rốt 200g',
       servingsCount: 4,
       prepNote: 'Giữ 2 suất cho trưa Chủ Nhật, dành trọn sáng CN thư giãn',
-      image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/tofu_steamed_egg.jpg',
     },
   },
   {
@@ -309,7 +309,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Cháo từ 160g gạo + 2 trứng + cà rốt 200g + lạc 50g',
       prepTime: '25–30 phút',
       caloriesApprox: 470,
-      image: 'https://images.unsplash.com/photo-1541832676-9b763b0239ab?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/porridge.jpg',
     },
     lunch: {
       title: '2 suất cơm, đậu hũ hấp trứng & rau củ ngọt',
@@ -317,7 +317,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Cơm trắng + chả đậu hũ trứng + bắp cải & cà rốt hấp',
       source: 'Trích từ mẻ 4 suất nấu tối Thứ Bảy',
       linkedDayId: 'T7',
-      image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/tofu_steamed_egg.jpg',
     },
     dinner: {
       title: 'Trứng sốt cà chua ấm nóng, rau cải & cơm dẻo',
@@ -325,7 +325,7 @@ export const MEAL_PLAN_7_DAYS: DayMealPlan[] = [
       ingredients: 'Cơm (160g gạo) + 4 trứng sốt cà chua 200g + cải 150g',
       servingsCount: 2,
       prepNote: 'Nấu 2 suất ăn nóng trực tiếp. Sẵn sàng chuẩn bị thực đơn cho Tuần 2!',
-      image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=800&q=80',
+      image: './assets/dishes/tofu_tomato.jpg',
     },
   },
 ];
@@ -425,7 +425,7 @@ export const RECIPES_DATA: Recipe[] = [
     servingsText: 'Khẩu phần 2 người lớn',
     servingsCount: 2,
     cookTime: '5–7 phút',
-    imageUrl: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=800&q=80',
+    imageUrl: './assets/dishes/oatmeal.jpg',
     ingredients: [
       { name: 'Yến mạch cán dẹt', baseAmount: '160 g (T2, T4) / 180 g (T6)' },
       { name: 'Sữa tươi tiệt trùng không đường', baseAmount: '330 ml (T2, T4) / 340 ml (T6)' },
@@ -463,7 +463,7 @@ export const RECIPES_DATA: Recipe[] = [
     servingsText: 'Khẩu phần 2 người lớn',
     servingsCount: 2,
     cookTime: '15–20 phút',
-    imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80',
+    imageUrl: './assets/dishes/sweet_potato.jpg',
     ingredients: [
       { name: 'Khoai lang vàng hoặc mật', baseAmount: '700 g (T3, T5) / 600 g (T7)' },
       { name: 'Trứng gà ta/công nghiệp', baseAmount: '2 quả' },
@@ -501,7 +501,7 @@ export const RECIPES_DATA: Recipe[] = [
     servingsText: 'Khẩu phần 2 người lớn',
     servingsCount: 2,
     cookTime: '25–30 phút',
-    imageUrl: 'https://images.unsplash.com/photo-1541832676-9b763b0239ab?auto=format&fit=crop&w=800&q=80',
+    imageUrl: './assets/dishes/porridge.jpg',
     ingredients: [
       { name: 'Gạo tẻ thơm (hoặc pha gạo lứt)', baseAmount: '160 g gạo khô' },
       { name: 'Cà rốt tươi', baseAmount: '200 g thái hạt lựu nhỏ' },
@@ -543,7 +543,7 @@ export const RECIPES_DATA: Recipe[] = [
     servingsCount: 2,
     cookTime: '15 phút',
     targetTemp: '74°C',
-    imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+    imageUrl: './assets/dishes/chicken_ginger.jpg',
     ingredients: [
       { name: 'Ức gà phi lê bỏ da', baseAmount: '300 g (thái miếng dày 1,5 cm)' },
       { name: 'Rau cải ngọt/cải chíp', baseAmount: '350 g' },
@@ -584,7 +584,7 @@ export const RECIPES_DATA: Recipe[] = [
     servingsCount: 4,
     cookTime: '15–20 phút',
     targetTemp: '74°C',
-    imageUrl: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=800&q=80',
+    imageUrl: './assets/dishes/chicken_pumpkin.jpg',
     ingredients: [
       { name: 'Ức gà phi lê', baseAmount: '600 g (thái thớ xiên dày 1,5–2 cm)' },
       { name: 'Bí đỏ già', baseAmount: '700 g (cắt miếng dày 3 cm)' },
@@ -630,7 +630,7 @@ export const RECIPES_DATA: Recipe[] = [
     servingsCount: 4,
     cookTime: '15–20 phút',
     targetTemp: '74°C',
-    imageUrl: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=800&q=80',
+    imageUrl: './assets/dishes/chicken_lemongrass.jpg',
     ingredients: [
       { name: 'Ức gà phi lê (rã đông ngăn mát từ tối T5)', baseAmount: '600 g' },
       { name: 'Bí đỏ', baseAmount: '500 g' },
@@ -673,7 +673,7 @@ export const RECIPES_DATA: Recipe[] = [
     servingsText: 'Mẻ 4 suất (2 suất tối + 2 suất trưa mai)',
     servingsCount: 4,
     cookTime: '12–18 phút',
-    imageUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+    imageUrl: './assets/dishes/steamed_pork.jpg',
     ingredients: [
       { name: 'Heo nạc vai lọc sạch mỡ', baseAmount: '600 g (thái lát mỏng 4–5 mm)' },
       { name: 'Bắp cải trắng', baseAmount: '700 g (tách lá to)' },
@@ -713,7 +713,7 @@ export const RECIPES_DATA: Recipe[] = [
     servingsText: 'Mẻ 4 suất (2 suất tối + 2 suất trưa mai)',
     servingsCount: 4,
     cookTime: '15–25 phút',
-    imageUrl: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
+    imageUrl: './assets/dishes/steamed_fish.jpg',
     ingredients: [
       { name: 'Cá diêu hồng nguyên con làm sạch', baseAmount: '1,2 kg' },
       { name: 'Rau muống ngọn non', baseAmount: '700 g' },
@@ -755,7 +755,7 @@ export const RECIPES_DATA: Recipe[] = [
     servingsText: 'Mẻ 4 suất (2 suất tối + 2 suất trưa mai)',
     servingsCount: 4,
     cookTime: '15 phút',
-    imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+    imageUrl: './assets/dishes/tofu_tomato.jpg',
     ingredients: [
       { name: 'Đậu hũ trắng tươi (mua giữa tuần)', baseAmount: '800 g (cắt miếng vuông 3 cm)' },
       { name: 'Cà chua chín mọng', baseAmount: '300 g (thái hạt lựu)' },
@@ -796,7 +796,7 @@ export const RECIPES_DATA: Recipe[] = [
     servingsText: 'Mẻ 4 suất (2 suất tối + 2 suất trưa mai)',
     servingsCount: 4,
     cookTime: '15–20 phút',
-    imageUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
+    imageUrl: './assets/dishes/tofu_steamed_egg.jpg',
     ingredients: [
       { name: 'Đậu hũ trắng tươi', baseAmount: '800 g' },
       { name: 'Trứng gà', baseAmount: '4 quả' },
@@ -837,7 +837,7 @@ export const RECIPES_DATA: Recipe[] = [
     servingsText: 'Khẩu phần 2 người (Ăn nóng ngay)',
     servingsCount: 2,
     cookTime: '10–12 phút',
-    imageUrl: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=800&q=80',
+    imageUrl: './assets/dishes/tofu_tomato.jpg',
     ingredients: [
       { name: 'Trứng gà', baseAmount: '4 quả' },
       { name: 'Cà chua chín', baseAmount: '200 g (thái hạt lựu)' },
